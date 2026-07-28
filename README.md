@@ -36,6 +36,9 @@ Management and preview tokens are never public runtime variables. See [.env.exam
 ```sh
 npm run dev
 npm run validate:content
+npm run contentful:seed
+npm run contentful:smoke:publish
+npm run contentful:smoke:unpublish
 npm run typecheck
 npm test
 npm run build:test
@@ -50,8 +53,8 @@ The build downloads Contentful images into versioned local paths, generates at m
 - CMS: <https://app.contentful.com/spaces/iea4zh2wm1z5/views/entries>
 - Repository: <https://github.com/viburamineni/publication-site>
 - Cloudflare: <https://dash.cloudflare.com/>
-- Production: configured after the first Pages deployment
+- Production: <https://publication-site.pages.dev>
 
-Cloudflare Pages settings: production branch `main`, command `npm ci && npm run build`, output `dist`, Node 24. Configure the five production variables listed above. Publishing and unpublishing events invoke the protected Pages deploy hook.
+Cloudflare Pages settings: production branch `main`, command `npm ci && npm run build`, output `dist`, Node 24. Production stores `CONTENTFUL_SPACE_ID`, `CONTENTFUL_ENVIRONMENT`, `CONTENTFUL_DELIVERY_TOKEN`, `PUBLICATION_ENV=production`, and `PUBLIC_SITE_URL`; fixture mode is not enabled. Publishing and unpublishing events invoke the protected Pages deploy hook.
 
 See [EDITORIAL_GUIDE.md](EDITORIAL_GUIDE.md), [CONTENT_MODEL.md](CONTENT_MODEL.md), [RUNBOOK.md](RUNBOOK.md), and [SECURITY.md](SECURITY.md).

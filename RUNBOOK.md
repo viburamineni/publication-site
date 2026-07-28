@@ -28,6 +28,8 @@ Check Contentful **Settings > Usage**, Cloudflare project analytics/deployments,
 - Change publication branding only in Site Settings.
 - To connect a domain later, add it in Cloudflare Pages, then change `PUBLIC_SITE_URL` and redeploy.
 - Export the model with `CONTENTFUL_MANAGEMENT_TOKEN=... npm run contentful:export`; revoke the temporary token afterward.
+- Seed a fresh space with `npm run contentful:seed`. The command publishes only shared reference/configuration entries and leaves all six fictional articles as drafts.
+- Use `npm run contentful:smoke:publish` and `npm run contentful:smoke:unpublish` only for a controlled deployment test; the latter restores the sample brief to Drafting.
 - Export content from Contentful **Settings > Content > Import/Export** or its CLI and store encrypted backups outside the public site.
 
 Repository secrets belong in GitHub Actions; production build secrets belong in Cloudflare. Rotate by creating a replacement, updating consumers, testing, then revoking the old credential.

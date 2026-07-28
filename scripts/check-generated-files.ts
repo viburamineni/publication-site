@@ -24,11 +24,17 @@ async function walk(directory: string): Promise<FileDetails[]> {
 const files = await walk(distDirectory);
 const oversized = files.filter((file) => file.size > MAX_FILE_SIZE);
 const imageFiles = files.filter((file) => /\.(avif|gif|jpe?g|png|svg|webp)$/i.test(file.path));
+const generatedWebpFiles = files.filter(
+  (file) =>
+    path.dirname(file.path) === path.join(distDirectory, 'generated') &&
+    file.path.endsWith('.webp'),
+);
 const totalImageSize = imageFiles.reduce((total, file) => total + file.size, 0);
 const largest = [...files].sort((left, right) => right.size - left.size)[0];
 
 console.log(`Generated file count: ${files.length}`);
 console.log(`Generated image files: ${imageFiles.length}`);
+console.log(`Generated Contentful WebP variants: ${generatedWebpFiles.length}`);
 console.log(`Generated image bytes: ${totalImageSize}`);
 console.log(
   `Largest generated file: ${largest ? `${path.relative(distDirectory, largest.path)} (${largest.size} bytes)` : 'none'}`,
@@ -44,5 +50,23 @@ if (oversized.length > 0) {
     `Generated files exceed the 20 MiB safety limit:\n${oversized
       .map((file) => `${path.relative(distDirectory, file.path)} (${file.size} bytes)`)
       .join('\n')}`,
+  );
+}
+
+const generatedSourceDirectory = path.resolve(process.cwd(), 'public', 'generated');
+async function countGeneratedSourceImages(): Promise<number> {
+  try {
+    return (await readdir(generatedSourceDirectory, { withFileTypes: true })).filter(
+      (entry) => entry.isFile() && entry.name.endsWith('.webp'),
+    ).length;
+  } catch {
+    return 0;
+  }
+}
+const expectedGeneratedCount = await countGeneratedSourceImages();
+
+if (generatedWebpFiles.length !== expectedGeneratedCount) {
+  throw new Error(
+    `Generated Contentful image mismatch: expected ${expectedGeneratedCount} WebP files in dist, found ${generatedWebpFiles.length}.`,
   );
 }

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run clean:generated && astro build && tsx scripts/write-redirects.ts && tsx scripts/pagefind-anchor.ts create && pagefind --site dist && tsx scripts/pagefind-anchor.ts remove && npm run check:generated",
+    "build": "npm run clean:generated && astro build && tsx scripts/copy-generated-images.ts && tsx scripts/write-redirects.ts && tsx scripts/pagefind-anchor.ts create && pagefind --site dist && tsx scripts/pagefind-anchor.ts remove && npm run check:generated",
     "build:test": "PUBLICATION_USE_FIXTURES=true PUBLIC_SITE_URL=https://example.pages.dev npm run build",
     "check:generated": "tsx scripts/check-generated-files.ts",
     "clean:generated": "tsx scripts/clean-generated.ts",

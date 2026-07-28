@@ -200,7 +200,6 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
   const articles: Article[] = [];
   for (const entry of byType.get('article') ?? []) {
     const value = fields(entry);
-    if (value.editorialState !== 'Approved') continue;
     const body = attachEmbeddedImages(value.body);
     const article = {
       id: entry.sys.id,
@@ -208,7 +207,6 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
       slug: value.slug,
       dek: value.dek,
       articleType: value.articleType,
-      editorialState: value.editorialState,
       body,
       ...(value.heroImage
         ? { heroImage: imageReference(value.heroImage, entry.sys.id, 'heroImage') }

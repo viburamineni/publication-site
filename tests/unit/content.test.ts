@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { fixturePublication } from '../../src/contentful/fixtures';
 import {
-  approvedArticles,
   estimateReadingMinutes,
   formatPublicationDate,
   normalizeSlug,
+  publishedArticles,
   sanitizeExternalUrl,
 } from '../../src/utilities/content';
 
@@ -18,15 +18,11 @@ describe('content utilities', () => {
     expect(estimateReadingMinutes(Array.from({ length: 451 }, () => 'word').join(' '))).toBe(3);
   });
 
-  it('filters unapproved articles and sorts newest first', () => {
-    const publication = structuredClone(fixturePublication);
-    publication.articles[0]!.editorialState = 'Review Requested';
-    const approved = approvedArticles(publication);
-    expect(approved).not.toContainEqual(
-      expect.objectContaining({ id: publication.articles[0]!.id }),
-    );
-    expect(Date.parse(approved[0]!.publicationDate)).toBeGreaterThanOrEqual(
-      Date.parse(approved[1]!.publicationDate),
+  it('sorts published articles newest first', () => {
+    const published = publishedArticles(fixturePublication);
+    expect(published).toHaveLength(fixturePublication.articles.length);
+    expect(Date.parse(published[0]!.publicationDate)).toBeGreaterThanOrEqual(
+      Date.parse(published[1]!.publicationDate),
     );
   });
 

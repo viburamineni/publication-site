@@ -3,11 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ResponsiveImage from '../../components/layout/ResponsiveImage.astro';
 import StoryCard from '../../components/cards/StoryCard.astro';
 import { publication, indexes } from '../../contentful/data';
-import { approvedArticles, formatPublicationDate } from '../../utilities/content';
+import { formatPublicationDate, publishedArticles } from '../../utilities/content';
 import { renderRichText } from '../../contentful/render-rich-text';
 
 export function getStaticPaths() {
-  return approvedArticles(publication).map((article) => ({
+  return publishedArticles(publication).map((article) => ({
     params: { slug: article.slug },
     props: { article },
   }));

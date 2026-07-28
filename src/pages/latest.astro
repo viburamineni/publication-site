@@ -1,11 +1,11 @@
 ---
 import ArchiveLayout from '../layouts/ArchiveLayout.astro';
 import { publication } from '../contentful/data';
-import { approvedArticles } from '../utilities/content';
+import { publishedArticles } from '../utilities/content';
 ---
 
 <ArchiveLayout
   title="Latest"
   description="Every approved story in reverse chronological order."
-  articles={approvedArticles(publication)}
+  articles={publishedArticles(publication)}
 />

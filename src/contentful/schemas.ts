@@ -9,8 +9,6 @@ export const articleTypes = [
   'Book Review',
 ] as const;
 
-export const editorialStates = ['Drafting', 'Review Requested', 'Approved'] as const;
-
 export const responsiveImageSchema = z.object({
   src: z.string().min(1),
   width: z.number().int().positive(),
@@ -101,7 +99,6 @@ export const articleSchema = z
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     dek: z.string().min(30).max(350),
     articleType: z.enum(articleTypes),
-    editorialState: z.enum(editorialStates),
     body: richTextDocumentSchema,
     heroImage: imageSchema.optional(),
     authorIds: z.array(z.string()).min(1).max(3),

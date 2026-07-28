@@ -4,9 +4,9 @@ import ResponsiveImage from '../components/layout/ResponsiveImage.astro';
 import StoryCard from '../components/cards/StoryCard.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import { publication, indexes } from '../contentful/data';
-import { approvedArticles, formatPublicationDate } from '../utilities/content';
+import { formatPublicationDate, publishedArticles } from '../utilities/content';
 
-const articles = approvedArticles(publication);
+const articles = publishedArticles(publication);
 const chosenLead = publication.homepage.leadArticleId
   ? indexes.articles.get(publication.homepage.leadArticleId)
   : undefined;

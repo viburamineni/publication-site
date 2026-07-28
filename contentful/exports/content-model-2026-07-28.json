@@ -6,7 +6,7 @@
     {
       "sys": {
         "id": "siteSettings",
-        "version": 2
+        "version": 4
       },
       "name": "Site Settings",
       "description": "Singleton publication identity and launch controls.",
@@ -189,7 +189,7 @@
         "version": 2
       },
       "name": "Homepage",
-      "description": "Singleton curation record. The frontend falls back to recent approved stories.",
+      "description": "Singleton curation record. The frontend falls back to recent published stories.",
       "displayField": "internalName",
       "fields": [
         {
@@ -416,10 +416,10 @@
     {
       "sys": {
         "id": "article",
-        "version": 4
+        "version": 12
       },
       "name": "Article",
-      "description": "Published editorial work. Only Approved entries appear on the site.",
+      "description": "Editorial work. Publishing makes an entry eligible for the public site.",
       "displayField": "title",
       "fields": [
         {
@@ -675,27 +675,6 @@
             ],
             "linkType": "Entry"
           }
-        },
-        {
-          "id": "editorialState",
-          "name": "Editorial state",
-          "type": "Symbol",
-          "localized": false,
-          "required": true,
-          "validations": [
-            {
-              "in": [
-                "Drafting",
-                "Review Requested",
-                "Approved"
-              ]
-            }
-          ],
-          "defaultValue": {
-            "en-US": "Drafting"
-          },
-          "disabled": false,
-          "omitted": false
         },
         {
           "id": "displayPublicationDate",

@@ -9,14 +9,14 @@
 5. In Body, use paragraphs, H2/H3, links, lists, or blockquotes. To add a Pull Quote or Fact Box, use **Embed > Entry**, create or select the corresponding type, then insert it.
 6. Use **Analysis** for evidence-led explanation and **Opinion** for an argued position. A Book Review also requires a Book entry.
 7. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
-8. Writers set **Editorial state** to **Review Requested** and notify an editor. The editor checks facts, sources, attribution, headings, links, and image rights.
-9. The editor sets **Editorial state** to **Approved**, then clicks **Publish**. Both approval and Contentful publication are required to appear publicly.
+8. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
+9. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.
 
-On the free plan, use the least-privileged role the actual space offers. If Author is available, writers use Author and editors use Editor. Otherwise both use Editor; writers technically retain publish access, so the Approved field remains the procedural gate. Never make ordinary writers Administrators.
+On the free plan, use the least-privileged role the actual space offers. If Author is available, writers use Author and editors use Editor. Otherwise both use Editor, and the team should treat **Publish** as final editorial approval. Never make ordinary writers Administrators.
 
 ## Corrections and removal
 
-For a correction, edit the article, fill **Correction note** with what changed and why, update the display-updated date, keep it Approved, and republish. For a slug change, add the old slug to **Previous slugs** first. To withdraw an article, unpublish it; do not redirect it to unrelated content.
+For a correction, edit the article, fill **Correction note** with what changed and why, update the display-updated date, and republish. For a slug change, add the old slug to **Previous slugs** first. To withdraw an article, unpublish it; do not redirect it to unrelated content.
 
 To unpublish, open the entry menu and choose **Unpublish**. The webhook rebuild removes it while the previous successful deployment remains available until the rebuild succeeds.
 

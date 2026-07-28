@@ -17,17 +17,15 @@ export function sortArticles(articles: Article[]): Article[] {
   );
 }
 
-export function approvedArticles(publication: Publication): Article[] {
-  return sortArticles(
-    publication.articles.filter((article) => article.editorialState === 'Approved'),
-  );
+export function publishedArticles(publication: Publication): Article[] {
+  return sortArticles(publication.articles);
 }
 
 export function articlesByType(
   publication: Publication,
   types: Article['articleType'][],
 ): Article[] {
-  return approvedArticles(publication).filter((article) => types.includes(article.articleType));
+  return publishedArticles(publication).filter((article) => types.includes(article.articleType));
 }
 
 export function estimateReadingMinutes(text: string): number {

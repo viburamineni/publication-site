@@ -1,7 +1,7 @@
 ---
 import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
 import { publication } from '../../contentful/data';
-import { approvedArticles } from '../../utilities/content';
+import { publishedArticles } from '../../utilities/content';
 
 export function getStaticPaths() {
   return publication.topics.map((topic) => ({
@@ -11,7 +11,7 @@ export function getStaticPaths() {
 }
 
 const { topic } = Astro.props;
-const articles = approvedArticles(publication).filter(
+const articles = publishedArticles(publication).filter(
   (article) => article.topicIds.includes(topic.id) || topic.relatedArticleIds.includes(article.id),
 );
 ---

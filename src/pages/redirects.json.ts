@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 import { publication } from '../contentful/data';
-import { approvedArticles } from '../utilities/content';
+import { publishedArticles } from '../utilities/content';
 
 export const GET: APIRoute = () => {
-  const redirects = approvedArticles(publication).flatMap((article) =>
+  const redirects = publishedArticles(publication).flatMap((article) =>
     article.previousSlugs.map((previousSlug) => ({
       from: `/articles/${previousSlug}/`,
       to: `/articles/${article.slug}/`,

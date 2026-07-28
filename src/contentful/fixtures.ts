@@ -264,7 +264,6 @@ export const fixturePublication: Publication = publicationSchema.parse({
   },
   articles: articleDrafts.map((article) => ({
     ...article,
-    editorialState: 'Approved',
     previousSlugs: [],
     correctionNote: '',
     readingMinutes: estimateReadingMinutes(JSON.stringify(article.body)),

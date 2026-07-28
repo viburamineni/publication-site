@@ -214,7 +214,6 @@ async function seed() {
       heroImage: article.heroImage ? entryLink(article.heroImage.id) : undefined,
       body: article.body,
       sources: article.sourceIds.map(entryLink),
-      editorialState: 'Drafting',
       displayPublicationDate: article.publicationDate,
       book: article.bookId ? entryLink(article.bookId) : undefined,
       correctionNote: article.correctionNote,
@@ -254,18 +253,14 @@ async function seed() {
 
 async function publishSmokeArticle() {
   const entry = await environment.getEntry('article-brief');
-  entry.fields.editorialState = localized('Approved');
-  const updated = await entry.update();
-  await updated.publish();
+  await entry.publish();
   console.log('Published the clearly labeled smoke-test article.');
 }
 
 async function unpublishSmokeArticle() {
-  let entry = await environment.getEntry('article-brief');
-  if (entry.isPublished()) entry = await entry.unpublish();
-  entry.fields.editorialState = localized('Drafting');
-  await entry.update();
-  console.log('Unpublished the smoke-test article and restored Drafting state.');
+  const entry = await environment.getEntry('article-brief');
+  if (entry.isPublished()) await entry.unpublish();
+  console.log('Unpublished the smoke-test article.');
 }
 
 if (action === 'seed') await seed();

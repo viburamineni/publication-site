@@ -274,7 +274,7 @@ module.exports = function initialModel(migration) {
   const article = migration
     .createContentType('article')
     .name('Article')
-    .description('Published editorial work. Only Approved entries appear on the site.')
+    .description('Editorial work. Publishing makes an entry eligible for the public site.')
     .displayField('title');
   article
     .createField('title')
@@ -365,13 +365,6 @@ module.exports = function initialModel(migration) {
     .name('Related articles')
     .required(false);
   article
-    .createField('editorialState')
-    .name('Editorial state')
-    .type('Symbol')
-    .required(true)
-    .validations([{ in: ['Drafting', 'Review Requested', 'Approved'] }])
-    .defaultValue({ 'en-US': 'Drafting' });
-  article
     .createField('displayPublicationDate')
     .name('Display publication date')
     .type('Date')
@@ -422,9 +415,6 @@ module.exports = function initialModel(migration) {
   article.changeFieldControl('body', 'builtin', 'richTextEditor', {
     helpText: 'Use H2 and H3 headings. Only approved embedded blocks are available.',
   });
-  article.changeFieldControl('editorialState', 'builtin', 'dropdown', {
-    helpText: 'Writers choose Review Requested. Editors choose Approved before publishing.',
-  });
   article.changeFieldControl('correctionNote', 'builtin', 'multipleLine', {
     helpText: 'Describe the correction and what changed. This appears publicly.',
   });
@@ -435,7 +425,7 @@ module.exports = function initialModel(migration) {
   const homepage = migration
     .createContentType('homepage')
     .name('Homepage')
-    .description('Singleton curation record. The frontend falls back to recent approved stories.')
+    .description('Singleton curation record. The frontend falls back to recent published stories.')
     .displayField('internalName');
   homepage
     .createField('internalName')

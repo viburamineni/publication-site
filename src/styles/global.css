@@ -1045,9 +1045,14 @@ input {
   }
 
   .lead-title,
-  .page-title,
-  .article-title {
+  .page-title {
     font-size: clamp(2.7rem, 14vw, 4.7rem);
+  }
+
+  .article-title {
+    max-width: none;
+    font-size: clamp(2.25rem, 10vw, 3.1rem);
+    line-height: 0.94;
   }
 
   .story-grid {

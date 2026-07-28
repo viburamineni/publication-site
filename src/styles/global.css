@@ -601,8 +601,8 @@ input {
 
 .article-title {
   max-width: 15ch;
-  font-size: clamp(3.2rem, 7.8vw, 8.2rem);
-  line-height: 0.89;
+  font-size: clamp(3.2rem, 4.8vw, 5.5rem);
+  line-height: 0.92;
 }
 
 .article-dek {

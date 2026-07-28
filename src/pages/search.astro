@@ -56,7 +56,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const pagefind = await import('/pagefind/pagefind.js');
         await pagefind.init();
         const search = await pagefind.search(query);
-        const data = await Promise.all(search.results.slice(0, 30).map((result) => result.data()));
+        const data = (await Promise.all(search.results.slice(0, 31).map((result) => result.data())))
+          .filter((item) => !item.url.includes('/__search-anchor/'))
+          .slice(0, 30);
         status.textContent = `${data.length} result${data.length === 1 ? '' : 's'} for “${query}”.`;
         results.innerHTML = data
           .map(

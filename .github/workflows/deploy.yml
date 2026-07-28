@@ -1,0 +1,97 @@
+name: Production deployment
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [contentful-published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: Batch nearby Contentful events
+        if: github.event_name == 'repository_dispatch'
+        run: sleep 90
+
+      - name: Check out publication source
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+
+      - name: Install dependencies
+        working-directory: source
+        run: npm ci
+
+      - name: Restore generated Contentful images
+        id: image-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: source/public/generated
+          key: contentful-images-${{ github.run_id }}
+          restore-keys: |
+            contentful-images-
+
+      - name: Build validated production site
+        working-directory: source
+        env:
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ENVIRONMENT: master
+          CONTENTFUL_DELIVERY_TOKEN: ${{ secrets.CONTENTFUL_DELIVERY_TOKEN }}
+          PUBLICATION_ENV: production
+          PUBLICATION_PRESERVE_GENERATED: 'true'
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: npm run build
+
+      - name: Save generated Contentful images
+        if: success() && steps.image-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: source/public/generated
+          key: contentful-images-${{ github.run_id }}
+
+      - name: Check out independent fallback site
+        uses: actions/checkout@v4
+        with:
+          repository: viburamineni/viburamineni.github.io
+          path: fallback
+          ssh-key: ${{ secrets.FALLBACK_DEPLOY_KEY }}
+
+      - name: Publish fallback snapshot
+        run: |
+          rsync -a --delete --exclude .git source/dist/ fallback/
+          touch fallback/.nojekyll
+          cd fallback
+          git config user.name "publication-site[bot]"
+          git config user.email "publication-site[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Fallback already matches this build."
+          else
+            git commit -m "Deploy publication ${GITHUB_SHA}"
+            git push origin HEAD:main
+          fi
+
+      - name: Deploy Cloudflare Worker static assets
+        working-directory: source
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npm run deploy:worker

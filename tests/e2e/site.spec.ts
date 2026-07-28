@@ -1,5 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
 const routes = [
   '/',
@@ -57,6 +59,20 @@ test('RSS, sitemap, and 404 output are available', async ({ page, request }) => 
   const missing = await page.goto('/definitely-missing/');
   expect(missing?.status()).toBe(404);
   await expect(page.getByRole('heading', { name: /missed the edition/i })).toBeVisible();
+});
+
+test('generated redirects never mask core content routes', async () => {
+  const redirects = await readFile(path.resolve('dist', '_redirects'), 'utf8');
+  const redirectSources = new Set(
+    redirects
+      .split('\n')
+      .filter((line) => line && !line.startsWith('#'))
+      .map((line) => line.split(/\s+/)[0]),
+  );
+
+  for (const route of routes) {
+    expect(redirectSources.has(route), route).toBe(false);
+  }
 });
 
 for (const route of [

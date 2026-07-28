@@ -360,6 +360,27 @@ input {
   line-height: 1.08;
 }
 
+.front-page--solo .edition-spine {
+  min-height: 0;
+}
+
+.front-page--solo .lead-copy,
+.front-page--solo .lead-art {
+  grid-column: 2 / -1;
+}
+
+.front-page--solo .lead-copy {
+  align-self: start;
+  padding-top: 0;
+}
+
+.front-page--solo .lead-title {
+  max-width: none;
+  font-size: clamp(3rem, 5vw, 5.6rem);
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
 .story-meta {
   display: flex;
   flex-wrap: wrap;
@@ -927,6 +948,44 @@ input {
   .latest-rail {
     grid-row: 3;
     margin-left: -4.1rem;
+  }
+
+  .front-page--solo {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+  }
+
+  .front-page--solo .edition-spine {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    padding: 0.75rem 1rem;
+    clip-path: none;
+  }
+
+  .front-page--solo .edition-spine-inner {
+    height: auto;
+    flex-direction: row;
+    gap: 0.75rem;
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .front-page--solo .lead-copy {
+    grid-column: 1;
+    grid-row: 2;
+    padding-inline: 0;
+  }
+
+  .front-page--solo .lead-art {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .front-page--solo .lead-title {
+    font-size: clamp(2.15rem, 9vw, 2.6rem);
+    line-height: 0.94;
   }
 
   .section-intro,

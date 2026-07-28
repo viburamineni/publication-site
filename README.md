@@ -55,7 +55,7 @@ The build downloads Contentful images into versioned local paths, generates at m
 - CMS: <https://app.contentful.com/spaces/iea4zh2wm1z5/views/entries>
 - Repository: <https://github.com/viburamineni/publication-site>
 - Cloudflare: <https://dash.cloudflare.com/>
-- Production Worker: configured through `PUBLIC_SITE_URL`
+- Production Worker: <https://publication-site-live.intraducine.workers.dev>
 - Independent fallback: <https://viburamineni.github.io>
 - Migration fallback: <https://publication-site.pages.dev>
 

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated network study</title>
+  <desc id="desc">An abstract editorial illustration of cables, switching nodes, and a signal path.</desc>
+  <defs>
+    <filter id="grain">
+      <feTurbulence baseFrequency=".9" numOctaves="2" seed="22"/>
+      <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .1 0"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#172820"/>
+  <path d="M-90 781C235 659 194 210 492 210c301 0 256 451 548 451 188 0 238-170 476-170" fill="none" stroke="#d6c987" stroke-linecap="round" stroke-width="76"/>
+  <path d="M-90 188c301 0 289 448 598 448 302 0 267-392 542-392 199 0 246 159 466 159" fill="none" stroke="#7c9f93" stroke-linecap="round" stroke-width="32"/>
+  <g fill="#efe9d6" stroke="#172820" stroke-width="18">
+    <circle cx="246" cy="516" r="66"/><circle cx="492" cy="210" r="66"/><circle cx="752" cy="496" r="66"/>
+    <circle cx="1040" cy="661" r="66"/><circle cx="1203" cy="324" r="66"/>
+  </g>
+  <g fill="#7d3344">
+    <circle cx="246" cy="516" r="18"/><circle cx="492" cy="210" r="18"/><circle cx="752" cy="496" r="18"/>
+    <circle cx="1040" cy="661" r="18"/><circle cx="1203" cy="324" r="18"/>
+  </g>
+  <rect width="1440" height="900" filter="url(#grain)" opacity=".45"/>
+</svg>

@@ -1,0 +1,23 @@
+---
+import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
+import { publication } from '../../contentful/data';
+import { approvedArticles } from '../../utilities/content';
+
+export function getStaticPaths() {
+  return publication.authors.map((author) => ({
+    params: { slug: author.slug },
+    props: { author },
+  }));
+}
+
+const { author } = Astro.props;
+const articles = approvedArticles(publication).filter((article) =>
+  article.authorIds.includes(author.id),
+);
+---
+
+<ArchiveLayout
+  title={author.name}
+  description={`${author.position}. ${author.fullBiography}`}
+  articles={articles}
+/>

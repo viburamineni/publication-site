@@ -1,0 +1,19 @@
+---
+import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
+import { publication } from '../../contentful/data';
+import { approvedArticles } from '../../utilities/content';
+
+export function getStaticPaths() {
+  return publication.categories.map((category) => ({
+    params: { slug: category.slug },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const articles = approvedArticles(publication).filter(
+  (article) => article.primaryCategoryId === category.id,
+);
+---
+
+<ArchiveLayout title={category.name} description={category.description} articles={articles} />

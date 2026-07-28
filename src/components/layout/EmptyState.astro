@@ -1,0 +1,16 @@
+---
+interface Props {
+  title?: string;
+  message?: string;
+}
+
+const {
+  title = 'No published stories yet',
+  message = 'Editors can add and approve stories in Contentful. This page will update after the next successful build.',
+} = Astro.props;
+---
+
+<section class="empty-state">
+  <h2>{title}</h2>
+  <p>{message}</p>
+</section>

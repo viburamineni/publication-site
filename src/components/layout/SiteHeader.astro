@@ -1,0 +1,74 @@
+---
+import type { Category, SiteSettings } from '../../contentful/types';
+
+interface Props {
+  settings: SiteSettings;
+  categories: Category[];
+  announcement?: string;
+}
+
+const { settings, categories, announcement = '' } = Astro.props;
+const date = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+}).format(new Date());
+const currentPath = Astro.url.pathname;
+const isCurrent = (url: string) => currentPath === url || currentPath.startsWith(url);
+---
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="page-shell utility-row">
+    <span>{date}</span>
+    <span class="edition-status"
+      >{settings.launched ? 'Current edition' : 'Demonstration edition'}</span
+    >
+    <a href="/search/">Search</a>
+  </div>
+  <div class="page-shell masthead">
+    <a class="masthead-name" href="/" aria-label={`${settings.publicationName} home`}>
+      {settings.textLogo}
+    </a>
+    <p class="masthead-tagline">{settings.tagline}</p>
+  </div>
+</header>
+<nav class="primary-nav desktop-nav" aria-label="Primary">
+  <ul class="page-shell nav-list">
+    {
+      categories.map((category) => (
+        <li>
+          <a
+            href={`/categories/${category.slug}/`}
+            aria-current={isCurrent(`/categories/${category.slug}/`) ? 'page' : undefined}
+          >
+            {category.name}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+<nav class="primary-nav mobile-nav" aria-label="Mobile primary">
+  <details class="page-shell">
+    <summary>Sections</summary>
+    <ul class="nav-list">
+      {
+        categories.map((category) => (
+          <li>
+            <a href={`/categories/${category.slug}/`}>{category.name}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </details>
+</nav>
+{
+  announcement && (
+    <aside class="announcement" aria-label="Edition notice">
+      {announcement}
+    </aside>
+  )
+}

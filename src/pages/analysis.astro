@@ -1,0 +1,11 @@
+---
+import ArchiveLayout from '../layouts/ArchiveLayout.astro';
+import { publication } from '../contentful/data';
+import { articlesByType } from '../utilities/content';
+---
+
+<ArchiveLayout
+  title="Analysis"
+  description="Evidence-led explanation of the systems, incentives, and history beneath the news."
+  articles={articlesByType(publication, ['Analysis'])}
+/>

@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publication } from '../contentful/data';
+
+const staff = publication.authors.filter(
+  (author) => author.designation === 'Staff' && author.status === 'Active',
+);
+const guests = publication.authors.filter(
+  (author) => author.designation === 'Guest' && author.status === 'Active',
+);
+---
+
+<BaseLayout
+  title="Staff"
+  description={`Active staff and guest contributors at ${publication.settings.publicationName}.`}
+  structuredData={staff.map((author) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: author.name,
+    jobTitle: author.position,
+    url: new URL(`/authors/${author.slug}/`, Astro.site).toString(),
+  }))}
+>
+  <header class="page-shell page-header">
+    <h1 class="page-title">The people behind the edition</h1>
+    <p class="page-description">
+      Staff reporting and guest contributions are kept distinct in every byline and archive.
+    </p>
+  </header>
+  <div class="page-shell staff-groups">
+    <section aria-labelledby="active-staff">
+      <h2 class="section-title" id="active-staff">Staff</h2>
+      <div class="staff-list">
+        {
+          staff.map((author) => (
+            <article class="staff-member">
+              <h2>
+                <a href={`/authors/${author.slug}/`}>{author.name}</a>
+              </h2>
+              <p class="story-meta">{author.position}</p>
+              <p>{author.shortBiography}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+    <section aria-labelledby="guest-contributors">
+      <h2 class="section-title" id="guest-contributors">Guests</h2>
+      <div class="staff-list">
+        {
+          guests.map((author) => (
+            <article class="staff-member">
+              <h2>
+                <a href={`/authors/${author.slug}/`}>{author.name}</a>
+              </h2>
+              <p class="story-meta">{author.position}</p>
+              <p>{author.shortBiography}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>

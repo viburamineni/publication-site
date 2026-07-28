@@ -1,0 +1,7 @@
+dist
+node_modules
+public/generated
+contentful/exports
+playwright-report
+test-results
+coverage

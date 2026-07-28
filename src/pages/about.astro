@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publication } from '../contentful/data';
+---
+
+<BaseLayout title="About" description={publication.settings.description}>
+  <article class="page-shell page-header">
+    <h1 class="page-title">Reporting in the open</h1>
+    <p class="page-description">{publication.settings.description}</p>
+    <div class="article-body" style="margin-top: 3rem;">
+      <p>
+        This publication separates news, analysis, opinion, long-form reporting, and criticism so
+        readers always know what kind of work they are reading.
+      </p>
+      <p>
+        The current site is a demonstration. Its sample names, stories, sources, and illustrations
+        are fictional and must be replaced before launch.
+      </p>
+    </div>
+  </article>
+</BaseLayout>

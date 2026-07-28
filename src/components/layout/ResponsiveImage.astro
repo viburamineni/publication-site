@@ -1,0 +1,32 @@
+---
+import type { Image } from '../../contentful/types';
+
+interface Props {
+  image: Image;
+  eager?: boolean;
+  sizes?: string;
+  class?: string;
+}
+
+const {
+  image,
+  eager = false,
+  sizes = '(max-width: 900px) 100vw, 66vw',
+  class: className,
+} = Astro.props;
+const fallback = image.sources.at(-1)!;
+const srcset = image.sources.map((source) => `${source.src} ${source.width}w`).join(', ');
+---
+
+<img
+  src={fallback.src}
+  srcset={srcset}
+  sizes={sizes}
+  width={image.width}
+  height={image.height}
+  alt={image.alt}
+  loading={eager ? 'eager' : 'lazy'}
+  fetchpriority={eager ? 'high' : 'auto'}
+  decoding={eager ? 'sync' : 'async'}
+  class={className}
+/>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated public assembly study</title>
+  <desc id="desc">An abstract editorial illustration of a round chamber and gathered seats.</desc>
+  <defs>
+    <filter id="grain">
+      <feTurbulence baseFrequency=".7" numOctaves="4" seed="13"/>
+      <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .09 0"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#eadfca"/>
+  <circle cx="720" cy="450" r="352" fill="#7d3344"/>
+  <circle cx="720" cy="450" r="260" fill="#eadfca"/>
+  <circle cx="720" cy="450" r="148" fill="#203d35"/>
+  <g fill="#203d35">
+    <circle cx="720" cy="62" r="34"/><circle cx="922" cy="118" r="34"/><circle cx="1070" cy="266" r="34"/>
+    <circle cx="1128" cy="450" r="34"/><circle cx="1070" cy="634" r="34"/><circle cx="922" cy="782" r="34"/>
+    <circle cx="720" cy="838" r="34"/><circle cx="518" cy="782" r="34"/><circle cx="370" cy="634" r="34"/>
+    <circle cx="312" cy="450" r="34"/><circle cx="370" cy="266" r="34"/><circle cx="518" cy="118" r="34"/>
+  </g>
+  <path d="M162 735 412 532M1278 735 1028 532M162 165l250 203M1278 165l-250 203" stroke="#d1b660" stroke-linecap="round" stroke-width="30"/>
+  <rect width="1440" height="900" filter="url(#grain)" opacity=".45"/>
+  <path d="M55 70h210M1175 830h210" stroke="#203d35" stroke-linecap="round" stroke-width="8"/>
+</svg>

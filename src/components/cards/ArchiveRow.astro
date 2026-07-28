@@ -1,0 +1,27 @@
+---
+import type { Article, Author, Category } from '../../contentful/types';
+import { formatPublicationDate } from '../../utilities/content';
+
+interface Props {
+  article: Article;
+  authors: Author[];
+  category?: Category | undefined;
+}
+
+const { article, authors, category } = Astro.props;
+---
+
+<article class="archive-row">
+  <div class="story-meta">
+    <span>{article.articleType}</span>
+    {category && <span>{category.name}</span>}
+  </div>
+  <div>
+    <h2><a href={`/articles/${article.slug}/`}>{article.title}</a></h2>
+    <p class="card-dek">{article.dek}</p>
+  </div>
+  <div class="story-meta">
+    <span>{authors.map((author) => author.name).join(', ')}</span>
+    <time datetime={article.publicationDate}>{formatPublicationDate(article.publicationDate)}</time>
+  </div>
+</article>

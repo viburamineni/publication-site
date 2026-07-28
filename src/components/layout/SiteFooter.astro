@@ -1,0 +1,39 @@
+---
+import type { SiteSettings } from '../../contentful/types';
+
+interface Props {
+  settings: SiteSettings;
+}
+
+const { settings } = Astro.props;
+---
+
+<footer class="site-footer">
+  <div class="page-shell">
+    <div class="footer-grid">
+      <section class="footer-intro" aria-labelledby="footer-publication">
+        <h2 id="footer-publication">{settings.publicationName}</h2>
+        <p>{settings.description}</p>
+      </section>
+      {
+        settings.footerSections.slice(0, 2).map((section) => (
+          <nav class="footer-column" aria-label={section.title}>
+            <h3>{section.title}</h3>
+            <ul>
+              {section.links.map((link) => (
+                <li>
+                  <a href={link.url}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+    </div>
+    <div class="footer-bottom">
+      <span>{settings.copyrightText}</span>
+      <span>{settings.launched ? 'Published site' : 'Not yet open to indexing'}</span>
+    </div>
+  </div>
+  <div class="footer-wordmark" aria-hidden="true">{settings.shortName}</div>
+</footer>

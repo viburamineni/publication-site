@@ -1,0 +1,233 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResponsiveImage from '../../components/layout/ResponsiveImage.astro';
+import StoryCard from '../../components/cards/StoryCard.astro';
+import { publication, indexes } from '../../contentful/data';
+import { approvedArticles, formatPublicationDate } from '../../utilities/content';
+import { renderRichText } from '../../contentful/render-rich-text';
+
+export function getStaticPaths() {
+  return approvedArticles(publication).map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const authors = article.authorIds
+  .map((id: string) => indexes.authors.get(id))
+  .filter((author) => author !== undefined);
+const category = indexes.categories.get(article.primaryCategoryId);
+const topics = article.topicIds
+  .map((id: string) => indexes.topics.get(id))
+  .filter((topic) => topic !== undefined);
+const sources = article.sourceIds
+  .map((id: string) => indexes.sources.get(id))
+  .filter((source) => source !== undefined);
+const related = article.relatedArticleIds
+  .map((id: string) => indexes.articles.get(id))
+  .filter((item) => item !== undefined);
+const book = article.bookId ? indexes.books.get(article.bookId) : undefined;
+const canonical = new URL(`/articles/${article.slug}/`, Astro.site).toString();
+const articleBody = renderRichText(article.body, article.id);
+const schemaType =
+  article.articleType === 'Book Review'
+    ? 'Review'
+    : ['News', 'News Brief'].includes(article.articleType)
+      ? 'NewsArticle'
+      : 'Article';
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': schemaType,
+    headline: article.title,
+    description: article.dek,
+    datePublished: article.publicationDate,
+    ...(article.updatedDate ? { dateModified: article.updatedDate } : {}),
+    mainEntityOfPage: canonical,
+    author: authors.map((author) => ({
+      '@type': 'Person',
+      name: author.name,
+      url: new URL(`/authors/${author.slug}/`, Astro.site).toString(),
+    })),
+    publisher: {
+      '@type': 'Organization',
+      name: publication.settings.publicationName,
+      url: new URL('/', Astro.site).toString(),
+    },
+    ...(article.heroImage
+      ? {
+          image: article.heroImage.sources.map((source) =>
+            new URL(source.src, Astro.site).toString(),
+          ),
+        }
+      : {}),
+    ...(book
+      ? {
+          itemReviewed: {
+            '@type': 'Book',
+            name: book.title,
+            author: { '@type': 'Person', name: book.author },
+            isbn: book.isbn,
+          },
+        }
+      : {}),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+      ...(category
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: category.name,
+              item: new URL(`/categories/${category.slug}/`, Astro.site).toString(),
+            },
+          ]
+        : []),
+      { '@type': 'ListItem', position: category ? 3 : 2, name: article.title, item: canonical },
+    ],
+  },
+];
+const shareText = encodeURIComponent(`${article.title} ${canonical}`);
+---
+
+<BaseLayout
+  title={article.seoTitle ?? article.title}
+  description={article.seoDescription ?? article.dek}
+  image={article.heroImage?.sources.at(-1)?.src}
+  type="article"
+  structuredData={structuredData}
+>
+  <article class="article-shell" data-pagefind-body>
+    <header class="page-shell article-header">
+      <div class="article-classification">
+        <p data-pagefind-meta="type">{article.articleType}</p>
+        {
+          category && (
+            <a data-pagefind-meta="category" href={`/categories/${category.slug}/`}>
+              {category.name}
+            </a>
+          )
+        }
+      </div>
+      <div>
+        <h1 class="article-title" data-pagefind-meta="title">{article.title}</h1>
+        <p class="article-dek">{article.dek}</p>
+      </div>
+      <aside class="article-meta-panel" aria-label="Article information">
+        <p data-pagefind-meta="author">By {authors.map((author) => author.name).join(' and ')}</p>
+        <p>
+          Published <time data-pagefind-meta="date" datetime={article.publicationDate}
+            >{formatPublicationDate(article.publicationDate)}</time
+          >
+        </p>
+        {
+          article.updatedDate && (
+            <p>
+              Updated{' '}
+              <time datetime={article.updatedDate}>
+                {formatPublicationDate(article.updatedDate)}
+              </time>
+            </p>
+          )
+        }
+        <p>{article.readingMinutes} min read</p>
+        {
+          topics.map((topic) => (
+            <p>
+              <a href={`/topics/${topic.slug}/`}>{topic.name}</a>
+            </p>
+          ))
+        }
+        <nav class="share-links" aria-label="Share article">
+          <a href={`mailto:?subject=${encodeURIComponent(article.title)}&body=${shareText}`}
+            >Email</a
+          >
+          <a href={`https://bsky.app/intent/compose?text=${shareText}`} rel="noopener noreferrer"
+            >Bluesky</a
+          >
+        </nav>
+      </aside>
+    </header>
+
+    {
+      article.heroImage && (
+        <figure class="article-hero">
+          <ResponsiveImage
+            image={article.heroImage}
+            eager={true}
+            sizes="(max-width: 1200px) 100vw, 78rem"
+          />
+          <figcaption>
+            {article.heroImage.caption} <span>Credit: {article.heroImage.credit}</span>
+          </figcaption>
+        </figure>
+      )
+    }
+
+    <div class="page-shell article-body-grid">
+      <div class="article-body" set:html={articleBody} />
+
+      {
+        article.correctionNote && (
+          <aside class="correction-notice">
+            <strong>Correction</strong>
+            <p>{article.correctionNote}</p>
+          </aside>
+        )
+      }
+
+      {
+        sources.length > 0 && (
+          <section class="sources" aria-labelledby="sources-heading">
+            <h2 id="sources-heading">Sources</h2>
+            <ol>
+              {sources.map((source) => (
+                <li>
+                  <a href={source.url} rel="noopener noreferrer">
+                    {source.title}
+                  </a>
+                  , {source.publisher}.{source.note && ` ${source.note}`}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      {
+        related.length > 0 && (
+          <section class="related-section" aria-labelledby="related-heading">
+            <h2 id="related-heading">Continue reading</h2>
+            <div class="story-grid">
+              {related.slice(0, 3).map((item) => (
+                <StoryCard
+                  article={item}
+                  authors={item.authorIds
+                    .map((id) => indexes.authors.get(id))
+                    .filter((author) => author !== undefined)}
+                  category={indexes.categories.get(item.primaryCategoryId)}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        authors.map((author) => (
+          <section class="author-note" aria-labelledby={`author-${author.slug}`}>
+            <h2 id={`author-${author.slug}`}>
+              <a href={`/authors/${author.slug}/`}>{author.name}</a>
+            </h2>
+            <p>{author.shortBiography}</p>
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</BaseLayout>

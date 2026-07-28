@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import { publication, indexes } from '../contentful/data';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string | undefined;
+  type?: 'website' | 'article';
+  structuredData?: Record<string, unknown> | Array<Record<string, unknown>>;
+  announcement?: string;
+  robots?: string;
+}
+
+const {
+  title,
+  description = publication.settings.description,
+  image = publication.settings.defaultSocialImage?.sources.at(-1)?.src,
+  type = 'website',
+  structuredData,
+  announcement = '',
+  robots = publication.settings.launched ? 'index, follow' : 'noindex, nofollow',
+} = Astro.props;
+const pageTitle = title
+  ? `${title} | ${publication.settings.publicationName}`
+  : publication.settings.publicationName;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const navigationCategories = publication.settings.navigationCategoryIds
+  .map((id) => indexes.categories.get(id))
+  .filter((category) => category?.showInNavigation)
+  .filter((category) => category !== undefined);
+const socialImage = image ? new URL(image, Astro.site).toString() : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={publication.settings.publicationName}
+      href="/rss.xml"
+    />
+    <meta name="robots" content={robots} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={publication.settings.publicationName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    <meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
+    {
+      structuredData && (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+      )
+    }
+  </head>
+  <body>
+    <SiteHeader
+      settings={publication.settings}
+      categories={navigationCategories}
+      announcement={announcement}
+    />
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter settings={publication.settings} />
+  </body>
+</html>

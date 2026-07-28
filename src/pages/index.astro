@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ResponsiveImage from '../components/layout/ResponsiveImage.astro';
+import StoryCard from '../components/cards/StoryCard.astro';
+import EmptyState from '../components/layout/EmptyState.astro';
+import { publication, indexes } from '../contentful/data';
+import { approvedArticles, formatPublicationDate } from '../utilities/content';
+
+const articles = approvedArticles(publication);
+const chosenLead = publication.homepage.leadArticleId
+  ? indexes.articles.get(publication.homepage.leadArticleId)
+  : undefined;
+const lead = chosenLead ?? articles[0];
+const secondary = publication.homepage.secondaryLeadArticleIds
+  .map((id) => indexes.articles.get(id))
+  .filter((article) => article !== undefined)
+  .slice(0, 3);
+const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 5);
+const featuredTopic = publication.homepage.featuredTopicId
+  ? indexes.topics.get(publication.homepage.featuredTopicId)
+  : publication.topics.find((topic) => topic.featured);
+const leadAuthors = lead
+  ? lead.authorIds.map((id) => indexes.authors.get(id)).filter((author) => author !== undefined)
+  : [];
+const leadCategory = lead ? indexes.categories.get(lead.primaryCategoryId) : undefined;
+
+const sections = [
+  {
+    title: 'Analysis',
+    description: 'Evidence, context, and the forces underneath the day’s events.',
+    articles: articles.filter((article) => article.articleType === 'Analysis').slice(0, 3),
+  },
+  {
+    title: 'Opinion',
+    description: 'Arguments from staff and guest writers, clearly separate from news.',
+    articles: articles.filter((article) => article.articleType === 'Opinion').slice(0, 3),
+  },
+  {
+    title: 'Books',
+    description: 'Reviews and criticism that treat books as part of public life.',
+    articles: articles.filter((article) => article.articleType === 'Book Review').slice(0, 3),
+  },
+];
+---
+
+<BaseLayout announcement={publication.homepage.announcement}>
+  {
+    lead ? (
+      <section class="page-shell front-page" aria-labelledby="lead-story">
+        <aside class="edition-spine" aria-label="Edition index">
+          <div class="edition-spine-inner">
+            <strong>Front page</strong>
+            <span>{leadCategory?.name ?? 'Latest reporting'}</span>
+            <span>{formatPublicationDate(lead.publicationDate)}</span>
+          </div>
+        </aside>
+        <div class="lead-copy">
+          <p class="story-kicker">
+            {lead.articleType} {leadCategory ? `· ${leadCategory.name}` : ''}
+          </p>
+          <h1 class="lead-title" id="lead-story">
+            <a href={`/articles/${lead.slug}/`}>{lead.title}</a>
+          </h1>
+          <p class="lead-dek">{lead.dek}</p>
+          <p class="lead-byline">By {leadAuthors.map((author) => author.name).join(' and ')}</p>
+        </div>
+        {lead.heroImage && (
+          <figure class="lead-art">
+            <a href={`/articles/${lead.slug}/`} tabindex="-1" aria-hidden="true">
+              <ResponsiveImage
+                image={lead.heroImage}
+                eager={true}
+                sizes="(max-width: 900px) 100vw, 62vw"
+              />
+            </a>
+          </figure>
+        )}
+        <aside class="latest-rail" aria-labelledby="latest-heading">
+          <header>
+            <h2 id="latest-heading">Latest</h2>
+            <a href="/latest/">All stories</a>
+          </header>
+          <ol class="latest-list">
+            {latest.map((article) => {
+              const category = indexes.categories.get(article.primaryCategoryId);
+              return (
+                <li class="latest-item">
+                  <div class="story-meta">
+                    <span>{article.articleType}</span>
+                    {category && <span>{category.name}</span>}
+                  </div>
+                  <h3>
+                    <a href={`/articles/${article.slug}/`}>{article.title}</a>
+                  </h3>
+                </li>
+              );
+            })}
+          </ol>
+        </aside>
+      </section>
+    ) : (
+      <section class="page-shell page-header">
+        <h1 class="page-title">{publication.settings.publicationName}</h1>
+        <EmptyState />
+      </section>
+    )
+  }
+
+  {
+    secondary.length > 0 && (
+      <section class="section-band">
+        <div class="page-shell">
+          <div class="section-intro">
+            <h2 class="section-title">The wider edition</h2>
+            <p>
+              Reporting selected to show what changed, what it means, and what remains uncertain.
+            </p>
+          </div>
+          <div class="story-grid">
+            {secondary.map((article) => (
+              <StoryCard
+                article={article}
+                authors={article.authorIds
+                  .map((id) => indexes.authors.get(id))
+                  .filter((author) => author !== undefined)}
+                category={indexes.categories.get(article.primaryCategoryId)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    sections.map(
+      (section) =>
+        section.articles.length > 0 && (
+          <section class="section-band">
+            <div class="page-shell">
+              <div class="section-intro">
+                <h2 class="section-title">{section.title}</h2>
+                <p>{section.description}</p>
+              </div>
+              <div class="story-grid">
+                {section.articles.map((article) => (
+                  <StoryCard
+                    article={article}
+                    authors={article.authorIds
+                      .map((id) => indexes.authors.get(id))
+                      .filter((author) => author !== undefined)}
+                    category={indexes.categories.get(article.primaryCategoryId)}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        ),
+    )
+  }
+
+  {
+    featuredTopic && (
+      <section class="section-band">
+        <div class="page-shell topic-feature">
+          {featuredTopic.heroImage && (
+            <figure>
+              <ResponsiveImage
+                image={featuredTopic.heroImage}
+                sizes="(max-width: 900px) 100vw, 55vw"
+              />
+            </figure>
+          )}
+          <div class="topic-copy">
+            <p class="story-kicker">Continuing story</p>
+            <h2>{featuredTopic.name}</h2>
+            <p>{featuredTopic.summary}</p>
+            <a class="text-action" href={`/topics/${featuredTopic.slug}/`}>
+              Follow the topic <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

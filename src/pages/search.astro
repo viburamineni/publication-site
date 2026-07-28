@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Search"
+  description="Search published articles by title, topic, author, category, and article text."
+  robots="noindex, follow"
+>
+  <header class="page-shell page-header">
+    <h1 class="page-title">Search the edition</h1>
+    <p class="page-description">
+      Search runs in this browser against the index generated with the latest deployment. Queries
+      are not sent to an external service.
+    </p>
+  </header>
+  <section class="page-shell" style="padding-bottom: var(--space-7);">
+    <form class="search-form" role="search" id="search-form">
+      <label for="search-query" class="visually-hidden">Search articles</label>
+      <input
+        id="search-query"
+        name="q"
+        type="search"
+        autocomplete="off"
+        placeholder="Title, author, topic, or phrase"
+      />
+      <button type="submit">Search</button>
+    </form>
+    <p id="search-status" role="status" aria-live="polite">Enter a search term.</p>
+    <div class="search-results archive-list" id="search-results"></div>
+  </section>
+
+  <script is:inline type="module">
+    const form = document.querySelector('#search-form');
+    const input = document.querySelector('#search-query');
+    const status = document.querySelector('#search-status');
+    const results = document.querySelector('#search-results');
+
+    const escapeHtml = (value) =>
+      String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+
+    const runSearch = async (query) => {
+      if (!query.trim()) {
+        results.replaceChildren();
+        status.textContent = 'Enter a search term.';
+        return;
+      }
+
+      status.textContent = 'Searching…';
+      try {
+        const pagefind = await import('/pagefind/pagefind.js');
+        await pagefind.init();
+        const search = await pagefind.search(query);
+        const data = await Promise.all(search.results.slice(0, 30).map((result) => result.data()));
+        status.textContent = `${data.length} result${data.length === 1 ? '' : 's'} for “${query}”.`;
+        results.innerHTML = data
+          .map(
+            (item) => `
+              <article class="archive-row">
+                <div class="story-meta">
+                  <span>${escapeHtml(item.meta.type || 'Article')}</span>
+                  <span>${escapeHtml(item.meta.category || '')}</span>
+                </div>
+                <div>
+                  <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.meta.title || item.url)}</a></h2>
+                  <p class="card-dek">${item.excerpt}</p>
+                </div>
+                <div class="story-meta">
+                  <span>${escapeHtml(item.meta.author || '')}</span>
+                  <span>${escapeHtml(item.meta.date || '')}</span>
+                </div>
+              </article>`,
+          )
+          .join('');
+      } catch {
+        status.textContent =
+          'The search index is unavailable in local development. Build the site to generate it.';
+      }
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const query = input.value;
+      const url = new URL(window.location.href);
+      if (query) {
+        url.searchParams.set('q', query);
+      } else {
+        url.searchParams.delete('q');
+      }
+      history.replaceState({}, '', url);
+      runSearch(query);
+    });
+
+    const initialQuery = new URL(window.location.href).searchParams.get('q') || '';
+    input.value = initialQuery;
+    if (initialQuery) runSearch(initialQuery);
+  </script>
+</BaseLayout>

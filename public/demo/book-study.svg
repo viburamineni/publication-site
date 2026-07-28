@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated book study</title>
+  <desc id="desc">An abstract editorial illustration of an open book casting letter-shaped shadows.</desc>
+  <defs>
+    <filter id="grain">
+      <feTurbulence baseFrequency=".65" numOctaves="3" seed="31"/>
+      <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .1 0"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#bdcfc6"/>
+  <path d="M120 696c220-34 374 24 600 120 226-96 380-154 600-120V172c-222-36-394 19-600 121-206-102-378-157-600-121Z" fill="#f1ead8"/>
+  <path d="M720 293v523" stroke="#7d3344" stroke-linecap="round" stroke-width="18"/>
+  <g fill="#203d35">
+    <path d="M232 307h291v30H232zM232 386h362v30H232zM232 465h318v30H232zM232 544h377v30H232z"/>
+    <path d="M835 307h351v30H835zM835 386h287v30H835zM835 465h364v30H835zM835 544h309v30H835z"/>
+  </g>
+  <g fill="#d1b660">
+    <path d="m250 746 104-128 104 128Z"/><circle cx="1090" cy="690" r="72"/>
+  </g>
+  <rect width="1440" height="900" filter="url(#grain)" opacity=".38"/>
+</svg>

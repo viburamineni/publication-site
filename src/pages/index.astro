@@ -46,7 +46,10 @@ const sections = [
 <BaseLayout announcement={publication.homepage.announcement}>
   {
     lead ? (
-      <section class="page-shell front-page" aria-labelledby="lead-story">
+      <section
+        class:list={['page-shell', 'front-page', { 'front-page--solo': latest.length === 0 }]}
+        aria-labelledby="lead-story"
+      >
         <aside class="edition-spine" aria-label="Edition index">
           <div class="edition-spine-inner">
             <strong>Front page</strong>
@@ -75,28 +78,30 @@ const sections = [
             </a>
           </figure>
         )}
-        <aside class="latest-rail" aria-labelledby="latest-heading">
-          <header>
-            <h2 id="latest-heading">Latest</h2>
-            <a href="/latest/">All stories</a>
-          </header>
-          <ol class="latest-list">
-            {latest.map((article) => {
-              const category = indexes.categories.get(article.primaryCategoryId);
-              return (
-                <li class="latest-item">
-                  <div class="story-meta">
-                    <span>{article.articleType}</span>
-                    {category && <span>{category.name}</span>}
-                  </div>
-                  <h3>
-                    <a href={`/articles/${article.slug}/`}>{article.title}</a>
-                  </h3>
-                </li>
-              );
-            })}
-          </ol>
-        </aside>
+        {latest.length > 0 && (
+          <aside class="latest-rail" aria-labelledby="latest-heading">
+            <header>
+              <h2 id="latest-heading">Latest</h2>
+              <a href="/latest/">All stories</a>
+            </header>
+            <ol class="latest-list">
+              {latest.map((article) => {
+                const category = indexes.categories.get(article.primaryCategoryId);
+                return (
+                  <li class="latest-item">
+                    <div class="story-meta">
+                      <span>{article.articleType}</span>
+                      {category && <span>{category.name}</span>}
+                    </div>
+                    <h3>
+                      <a href={`/articles/${article.slug}/`}>{article.title}</a>
+                    </h3>
+                  </li>
+                );
+              })}
+            </ol>
+          </aside>
+        )}
       </section>
     ) : (
       <section class="page-shell page-header">

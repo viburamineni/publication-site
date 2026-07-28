@@ -33,3 +33,7 @@ Check Contentful **Settings > Usage**, Cloudflare project analytics/deployments,
 - Export content from Contentful **Settings > Content > Import/Export** or its CLI and store encrypted backups outside the public site.
 
 Repository secrets belong in GitHub Actions; production build secrets belong in Cloudflare. Rotate by creating a replacement, updating consumers, testing, then revoking the old credential.
+
+## Repository protection
+
+The repository is private on GitHub Free. GitHub currently returns `403` for branch-protection configuration on this plan, so no paid feature was enabled and the repository was not made public. Until the plan or visibility changes, treat `main` as protected by procedure: use a branch and pull request for substantial work, never force-push, and require both `verify` and `contentful-integration` to pass. The owner can merge or override when necessary. If protection becomes available, enforce those two checks, linear history, conversation resolution, no force pushes, and no deletions without requiring a human approval.

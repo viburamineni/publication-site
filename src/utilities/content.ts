@@ -41,6 +41,37 @@ export function sanitizeExternalUrl(value: string): string {
   return url.toString();
 }
 
+export function sanitizeLinkUrl(value: string): string {
+  if (/[\u0000-\u0020\u007f]/.test(value) || value.includes('\\')) {
+    throw new Error('Link URLs cannot contain whitespace, control characters, or backslashes.');
+  }
+
+  if (value.startsWith('/')) {
+    if (value.startsWith('//')) {
+      throw new Error('Protocol-relative link URLs are not supported.');
+    }
+    return value;
+  }
+
+  return sanitizeExternalUrl(value);
+}
+
+export function serializeJsonForHtml(value: unknown): string {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) {
+    throw new Error('Structured data must be JSON-serializable.');
+  }
+
+  const escapes: Record<string, string> = {
+    '<': '\\u003c',
+    '>': '\\u003e',
+    '&': '\\u0026',
+    '\u2028': '\\u2028',
+    '\u2029': '\\u2029',
+  };
+  return serialized.replace(/[<>&\u2028\u2029]/g, (character) => escapes[character]!);
+}
+
 export function normalizeSlug(value: string): string {
   return value
     .normalize('NFKD')

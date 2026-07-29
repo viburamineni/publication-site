@@ -3,6 +3,7 @@ import '../styles/global.css';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { publication, indexes } from '../contentful/data';
+import { serializeJsonForHtml } from '../utilities/content';
 
 interface Props {
   title?: string;
@@ -63,7 +64,7 @@ const socialImage = image ? new URL(image, Astro.site).toString() : undefined;
     {socialImage && <meta name="twitter:image" content={socialImage} />}
     {
       structuredData && (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+        <script is:inline type="application/ld+json" set:html={serializeJsonForHtml(structuredData)} />
       )
     }
   </head>

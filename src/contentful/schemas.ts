@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { sanitizeLinkUrl } from '../utilities/content';
 
 export const articleTypes = [
   'News Brief',
@@ -8,6 +9,20 @@ export const articleTypes = [
   'Opinion',
   'Book Review',
 ] as const;
+
+export const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
+const linkUrlSchema = z.string().transform((value, context) => {
+  try {
+    return sanitizeLinkUrl(value);
+  } catch (error) {
+    context.addIssue({
+      code: 'custom',
+      message: error instanceof Error ? error.message : 'Unsupported link URL.',
+    });
+    return z.NEVER;
+  }
+});
 
 export const responsiveImageSchema = z.object({
   src: z.string().min(1),
@@ -31,7 +46,7 @@ export const imageSchema = z.object({
 export const authorSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  slug: slugSchema,
   position: z.string().default('Contributor'),
   shortBiography: z.string().min(1),
   fullBiography: z.string().min(1),
@@ -46,7 +61,7 @@ export const authorSchema = z.object({
 export const categorySchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  slug: slugSchema,
   description: z.string().min(1),
   displayOrder: z.number().int().nonnegative(),
   showInNavigation: z.boolean(),
@@ -57,7 +72,7 @@ export const categorySchema = z.object({
 export const topicSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  slug: slugSchema,
   summary: z.string().min(1),
   timelineIntroduction: z.string().default(''),
   featured: z.boolean().default(false),
@@ -96,7 +111,7 @@ export const articleSchema = z
   .object({
     id: z.string().min(1),
     title: z.string().min(10).max(140),
-    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    slug: slugSchema,
     dek: z.string().min(30).max(350),
     articleType: z.enum(articleTypes),
     body: richTextDocumentSchema,
@@ -110,7 +125,7 @@ export const articleSchema = z
     publicationDate: z.string().datetime(),
     updatedDate: z.string().datetime().optional(),
     correctionNote: z.string().default(''),
-    previousSlugs: z.array(z.string()).default([]),
+    previousSlugs: z.array(slugSchema).default([]),
     featured: z.boolean().default(false),
     seoTitle: z.string().max(70).optional(),
     seoDescription: z.string().max(170).optional(),
@@ -156,11 +171,11 @@ export const siteSettingsSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        links: z.array(z.object({ label: z.string(), url: z.string() })),
+        links: z.array(z.object({ label: z.string(), url: linkUrlSchema })),
       }),
     )
     .default([]),
-  contactLinks: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
+  contactLinks: z.array(z.object({ label: z.string(), url: linkUrlSchema })).default([]),
   socialLinks: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
   copyrightText: z.string().min(1),
   launched: z.boolean().default(false),

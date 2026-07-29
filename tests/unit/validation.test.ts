@@ -27,6 +27,28 @@ describe('publication validation', () => {
     expect(publicationSchema.safeParse(publication).success).toBe(false);
   });
 
+  it('rejects redirect syntax in previous article slugs', () => {
+    const article = copyFixture().articles[0]!;
+    expect(
+      articleSchema.safeParse({
+        ...article,
+        previousSlugs: ['legacy\n/* https://attacker.example/:splat 302\n#'],
+      }).success,
+    ).toBe(false);
+    expect(articleSchema.safeParse({ ...article, previousSlugs: ['valid-previous-slug'] }).success).toBe(
+      true,
+    );
+  });
+
+  it('rejects executable footer URLs while preserving internal links', () => {
+    const publication = copyFixture();
+    publication.settings.footerSections[0]!.links[0]!.url = 'javascript:alert(1)';
+    expect(publicationSchema.safeParse(publication).success).toBe(false);
+
+    publication.settings.footerSections[0]!.links[0]!.url = '/about/';
+    expect(publicationSchema.safeParse(publication).success).toBe(true);
+  });
+
   it('rejects missing image alt text or credit', () => {
     const article = copyFixture().articles.find((item) => item.heroImage)!;
     const noAlt = structuredClone(article);

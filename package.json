@@ -15,6 +15,7 @@
     "clean:generated": "tsx scripts/clean-generated.ts",
     "contentful:migrate": "npx --yes contentful-migration@5.1.0 --space-id \"$CONTENTFUL_SPACE_ID\" --environment-id \"${CONTENTFUL_ENVIRONMENT:-master}\" --access-token \"$CONTENTFUL_MANAGEMENT_TOKEN\" --yes contentful/migrations/001-initial-model.cjs",
     "contentful:migrate:remove-editorial-state": "npx --yes contentful-migration@5.1.0 --space-id \"$CONTENTFUL_SPACE_ID\" --environment-id \"${CONTENTFUL_ENVIRONMENT:-master}\" --access-token \"$CONTENTFUL_MANAGEMENT_TOKEN\" --yes contentful/migrations/002-remove-editorial-state.cjs",
+    "contentful:migrate:validate-previous-slugs": "npx --yes contentful-migration@5.1.0 --space-id \"$CONTENTFUL_SPACE_ID\" --environment-id \"${CONTENTFUL_ENVIRONMENT:-master}\" --access-token \"$CONTENTFUL_MANAGEMENT_TOKEN\" --yes contentful/migrations/003-validate-previous-slugs.cjs",
     "contentful:seed": "tsx scripts/seed-contentful.ts seed",
     "contentful:smoke:publish": "tsx scripts/seed-contentful.ts publish-test",
     "contentful:smoke:unpublish": "tsx scripts/seed-contentful.ts unpublish-test",

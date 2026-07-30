@@ -166,7 +166,6 @@ export const siteSettingsSchema = z.object({
   tagline: z.string().min(1),
   description: z.string().min(1),
   textLogo: z.string().min(1),
-  navigationCategoryIds: z.array(z.string()).default([]),
   footerSections: z
     .array(
       z.object({

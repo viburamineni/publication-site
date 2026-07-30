@@ -239,7 +239,7 @@ async function seed() {
       description: fixturePublication.settings.description,
       textLogo: fixturePublication.settings.textLogo,
       defaultSocialImage: entryLink('image-harbor'),
-      navigationCategories: fixturePublication.settings.navigationCategoryIds.map(entryLink),
+      navigationCategories: [],
       footerSections: fixturePublication.settings.footerSections,
       contactLinks: fixturePublication.settings.contactLinks,
       socialLinks: fixturePublication.settings.socialLinks,

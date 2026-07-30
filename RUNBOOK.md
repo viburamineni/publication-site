@@ -33,7 +33,9 @@ Check Contentful **Settings > Usage**, the Worker deployment history, GitHub Pag
 ## Routine changes
 
 - Add people under Contentful organization/space membership using the least privileged available role. Never use Administrator for ordinary writers.
-- Add categories as Category entries, then update Site Settings navigation and Homepage ordering.
+- Keep exactly one Site Settings entry published with **Site launched** on. Treat it as permanent publication configuration, not an editorial control.
+- Add categories as Category entries. Their **Show in navigation** and **Display order** fields control the menu automatically.
+- Leave Homepage unpublished for the automatic edition. Publish it only when deliberately curating a special homepage or announcement.
 - Change publication branding only in Site Settings.
 - To connect a domain later, add it to the Cloudflare Worker, then change `PUBLIC_SITE_URL` and redeploy.
 - Export the model with `CONTENTFUL_MANAGEMENT_TOKEN=... npm run contentful:export`; revoke the temporary token afterward.

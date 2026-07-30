@@ -316,11 +316,6 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
     tagline: settingsFields.tagline,
     description: settingsFields.description,
     textLogo: settingsFields.textLogo,
-    navigationCategoryIds: referenceIds(
-      settingsFields.navigationCategories,
-      settingsEntry.sys.id,
-      'navigationCategories',
-    ),
     footerSections: Array.isArray(settingsFields.footerSections)
       ? settingsFields.footerSections
       : [],

@@ -1,5 +1,23 @@
 # Editorial Guide
 
+## What editors normally use
+
+**Site Settings is one-time setup.** Keep exactly one Site Settings entry published and leave
+**Site launched** on for the deployed publication. Ordinary publishing never requires editing it.
+
+The site updates itself from editorial entries:
+
+- Published Categories marked **Show in navigation** appear in the menu, ordered by their
+  **Display order** value.
+- The newest published Article becomes the homepage lead when no optional Homepage override is
+  published.
+- Other recent Articles populate the latest and secondary positions.
+- Analysis, Opinion, and Book Review stories populate their matching homepage sections.
+- A published Topic marked **Featured** can populate the homepage topic position.
+
+The Homepage entry is an optional advanced override. Leave it as a draft unless an editor
+deliberately needs to curate a special edition or announcement.
+
 ## Create and publish
 
 1. Sign in at the [Contentful space](https://app.contentful.com/spaces/iea4zh2wm1z5/views/entries) and select the `master` environment.
@@ -11,6 +29,9 @@
 7. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
 8. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
 9. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.
+
+When creating a new Category, set **Show in navigation** and **Display order** on that Category.
+Do not update Site Settings or Homepage just to add it to the menu.
 
 On the free plan, use the least-privileged role the actual space offers. If Author is available, writers use Author and editors use Editor. Otherwise both use Editor, and the team should treat **Publish** as final editorial approval. Never make ordinary writers Administrators.
 

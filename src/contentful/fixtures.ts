@@ -212,16 +212,6 @@ export const fixturePublication: Publication = publicationSchema.parse({
     description:
       'A demonstration publication for accountable news, explanatory reporting, criticism, and public argument.',
     textLogo: 'The Public Ledger',
-    navigationCategoryIds: [
-      'category-world',
-      'category-politics',
-      'category-economics',
-      'category-technology',
-      'category-culture',
-      'category-analysis',
-      'category-opinion',
-      'category-books',
-    ],
     footerSections: [
       {
         title: 'Publication',
@@ -343,16 +333,16 @@ export const fixturePublication: Publication = publicationSchema.parse({
       4,
       'plum',
     ],
-    ['category-books', 'Books', 'books', 'Reviews, criticism, and reading lists.', 5, 'clay'],
-    ['category-opinion', 'Opinion', 'opinion', 'Arguments and guest perspectives.', 6, 'oxblood'],
     [
       'category-analysis',
       'Analysis',
       'analysis',
       'Evidence-led explanation and context.',
-      7,
+      5,
       'graphite',
     ],
+    ['category-opinion', 'Opinion', 'opinion', 'Arguments and guest perspectives.', 6, 'oxblood'],
+    ['category-books', 'Books', 'books', 'Reviews, criticism, and reading lists.', 7, 'clay'],
   ].map(([id, name, slug, description, displayOrder, colorToken]) => ({
     id,
     name,

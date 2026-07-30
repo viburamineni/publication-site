@@ -10,6 +10,11 @@ Each successful build is also copied to GitHub Pages at <https://viburamineni.gi
 
 The committed fixture publication is fictional and exists for development and CI. Production builds require Contentful credentials and fail closed when content is invalid.
 
+Normal editorial work is intentionally limited to Authors, Categories, Topics, Images, Sources,
+Books, and Articles. Site Settings is permanent one-time configuration, and the optional Homepage
+entry is only for deliberate special-edition curation. Published Categories control navigation
+through their own visibility and display-order fields.
+
 ## Setup
 
 Requires Node 24 LTS and npm 11.

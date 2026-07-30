@@ -2,8 +2,14 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ResponsiveImage from '../../components/layout/ResponsiveImage.astro';
 import StoryCard from '../../components/cards/StoryCard.astro';
+import AuthorLinks from '../../components/cards/AuthorLinks.astro';
 import { publication, indexes } from '../../contentful/data';
-import { formatPublicationDate, publishedArticles } from '../../utilities/content';
+import {
+  displayArticleType,
+  distinctCategoryLabel,
+  formatPublicationDate,
+  publishedArticles,
+} from '../../utilities/content';
 import { renderRichText } from '../../contentful/render-rich-text';
 
 export function getStaticPaths() {
@@ -18,6 +24,7 @@ const authors = article.authorIds
   .map((id: string) => indexes.authors.get(id))
   .filter((author) => author !== undefined);
 const category = indexes.categories.get(article.primaryCategoryId);
+const categoryLabel = distinctCategoryLabel(article.articleType, category?.name);
 const topics = article.topicIds
   .map((id: string) => indexes.topics.get(id))
   .filter((topic) => topic !== undefined);
@@ -105,11 +112,11 @@ const shareText = encodeURIComponent(`${article.title} ${canonical}`);
   <article class="article-shell" data-pagefind-body>
     <header class="page-shell article-header">
       <div class="article-classification">
-        <p data-pagefind-meta="type">{article.articleType}</p>
+        <p data-pagefind-meta="type">{displayArticleType(article.articleType)}</p>
         {
-          category && (
+          category && categoryLabel && (
             <a data-pagefind-meta="category" href={`/categories/${category.slug}/`}>
-              {category.name}
+              {categoryLabel}
             </a>
           )
         }
@@ -119,7 +126,9 @@ const shareText = encodeURIComponent(`${article.title} ${canonical}`);
         <p class="article-dek">{article.dek}</p>
       </div>
       <aside class="article-meta-panel" aria-label="Article information">
-        <p data-pagefind-meta="author">By {authors.map((author) => author.name).join(' and ')}</p>
+        <p data-pagefind-meta="author">
+          By <AuthorLinks authors={authors} />
+        </p>
         <p>
           Published <time data-pagefind-meta="date" datetime={article.publicationDate}
             >{formatPublicationDate(article.publicationDate)}</time
@@ -202,8 +211,8 @@ const shareText = encodeURIComponent(`${article.title} ${canonical}`);
       {
         related.length > 0 && (
           <section class="related-section" aria-labelledby="related-heading">
-            <h2 id="related-heading">Continue reading</h2>
-            <div class="story-grid">
+            <h2 id="related-heading">Related stories</h2>
+            <div class:list={['story-grid', { 'related-grid--single': related.length === 1 }]}>
               {related.slice(0, 3).map((item) => (
                 <StoryCard
                   article={item}

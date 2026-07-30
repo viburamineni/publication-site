@@ -211,16 +211,16 @@ export const fixturePublication: Publication = publicationSchema.parse({
     tagline: 'Reporting in the open.',
     description:
       'A demonstration publication for accountable news, explanatory reporting, criticism, and public argument.',
-    textLogo: 'THE PUBLIC LEDGER',
+    textLogo: 'The Public Ledger',
     navigationCategoryIds: [
       'category-world',
       'category-politics',
       'category-economics',
       'category-technology',
       'category-culture',
-      'category-books',
-      'category-opinion',
       'category-analysis',
+      'category-opinion',
+      'category-books',
     ],
     footerSections: [
       {
@@ -260,7 +260,7 @@ export const fixturePublication: Publication = publicationSchema.parse({
       'category-technology',
       'category-culture',
     ],
-    announcement: 'Demonstration edition: every story and person on this site is fictional.',
+    announcement: '',
   },
   articles: articleDrafts.map((article) => ({
     ...article,

@@ -4,15 +4,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Search"
-  description="Search published articles by title, topic, author, category, and article text."
+  description="Find published stories by headline, author, subject, or phrase."
   robots="noindex, follow"
 >
   <header class="page-shell page-header">
     <h1 class="page-title">Search the edition</h1>
-    <p class="page-description">
-      Search runs in this browser against the index generated with the latest deployment. Queries
-      are not sent to an external service.
-    </p>
+    <p class="page-description">Find stories by headline, author, subject, or phrase.</p>
   </header>
   <section class="page-shell" style="padding-bottom: var(--space-7);">
     <form class="search-form" role="search" id="search-form">
@@ -22,7 +19,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         name="q"
         type="search"
         autocomplete="off"
-        placeholder="Title, author, topic, or phrase"
+        placeholder="Headline, author, subject, or phrase"
       />
       <button type="submit">Search</button>
     </form>
@@ -66,7 +63,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <article class="archive-row">
                 <div class="story-meta">
                   <span>${escapeHtml(item.meta.type || 'Article')}</span>
-                  <span>${escapeHtml(item.meta.category || '')}</span>
+                  ${
+                    item.meta.category &&
+                    item.meta.category.toLocaleLowerCase() !==
+                      (item.meta.type || 'Article').toLocaleLowerCase()
+                      ? `<span>${escapeHtml(item.meta.category)}</span>`
+                      : ''
+                  }
                 </div>
                 <div>
                   <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.meta.title || item.url)}</a></h2>

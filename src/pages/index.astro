@@ -2,9 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ResponsiveImage from '../components/layout/ResponsiveImage.astro';
 import StoryCard from '../components/cards/StoryCard.astro';
+import AuthorLinks from '../components/cards/AuthorLinks.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import { publication, indexes } from '../contentful/data';
-import { formatPublicationDate, publishedArticles } from '../utilities/content';
+import { displayArticleType, distinctCategoryLabel, publishedArticles } from '../utilities/content';
 
 const articles = publishedArticles(publication);
 const chosenLead = publication.homepage.leadArticleId
@@ -23,6 +24,9 @@ const leadAuthors = lead
   ? lead.authorIds.map((id) => indexes.authors.get(id)).filter((author) => author !== undefined)
   : [];
 const leadCategory = lead ? indexes.categories.get(lead.primaryCategoryId) : undefined;
+const leadCategoryLabel = lead
+  ? distinctCategoryLabel(lead.articleType, leadCategory?.name)
+  : undefined;
 
 const sections = [
   {
@@ -50,22 +54,18 @@ const sections = [
         class:list={['page-shell', 'front-page', { 'front-page--solo': latest.length === 0 }]}
         aria-labelledby="lead-story"
       >
-        <aside class="edition-spine" aria-label="Edition index">
-          <div class="edition-spine-inner">
-            <strong>Front page</strong>
-            <span>{leadCategory?.name ?? 'Latest reporting'}</span>
-            <span>{formatPublicationDate(lead.publicationDate)}</span>
-          </div>
-        </aside>
         <div class="lead-copy">
           <p class="story-kicker">
-            {lead.articleType} {leadCategory ? `· ${leadCategory.name}` : ''}
+            {displayArticleType(lead.articleType)}{' '}
+            {leadCategoryLabel ? `· ${leadCategoryLabel}` : ''}
           </p>
           <h1 class="lead-title" id="lead-story">
             <a href={`/articles/${lead.slug}/`}>{lead.title}</a>
           </h1>
           <p class="lead-dek">{lead.dek}</p>
-          <p class="lead-byline">By {leadAuthors.map((author) => author.name).join(' and ')}</p>
+          <p class="lead-byline">
+            By <AuthorLinks authors={leadAuthors} />
+          </p>
         </div>
         {lead.heroImage && (
           <figure class="lead-art">
@@ -76,6 +76,9 @@ const sections = [
                 sizes="(max-width: 900px) 100vw, 62vw"
               />
             </a>
+            <figcaption>
+              {lead.heroImage.caption} <span>Credit: {lead.heroImage.credit}</span>
+            </figcaption>
           </figure>
         )}
         {latest.length > 0 && (
@@ -87,11 +90,12 @@ const sections = [
             <ol class="latest-list">
               {latest.map((article) => {
                 const category = indexes.categories.get(article.primaryCategoryId);
+                const categoryLabel = distinctCategoryLabel(article.articleType, category?.name);
                 return (
                   <li class="latest-item">
                     <div class="story-meta">
-                      <span>{article.articleType}</span>
-                      {category && <span>{category.name}</span>}
+                      <span>{displayArticleType(article.articleType)}</span>
+                      {categoryLabel && <span>{categoryLabel}</span>}
                     </div>
                     <h3>
                       <a href={`/articles/${article.slug}/`}>{article.title}</a>
@@ -177,11 +181,14 @@ const sections = [
             </figure>
           )}
           <div class="topic-copy">
-            <p class="story-kicker">Continuing story</p>
+            <p class="story-kicker">Topic</p>
             <h2>{featuredTopic.name}</h2>
+            <p class="topic-definition">
+              A collection of articles following one subject over time.
+            </p>
             <p>{featuredTopic.summary}</p>
             <a class="text-action" href={`/topics/${featuredTopic.slug}/`}>
-              Follow the topic <span aria-hidden="true">↗</span>
+              View related stories <span aria-hidden="true">↗</span>
             </a>
           </div>
         </div>

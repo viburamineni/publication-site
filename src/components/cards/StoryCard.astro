@@ -1,7 +1,12 @@
 ---
 import type { Article, Author, Category } from '../../contentful/types';
 import ResponsiveImage from '../layout/ResponsiveImage.astro';
-import { formatPublicationDate } from '../../utilities/content';
+import AuthorLinks from './AuthorLinks.astro';
+import {
+  displayArticleType,
+  distinctCategoryLabel,
+  formatPublicationDate,
+} from '../../utilities/content';
 
 interface Props {
   article: Article;
@@ -10,6 +15,7 @@ interface Props {
 }
 
 const { article, authors, category } = Astro.props;
+const categoryLabel = distinctCategoryLabel(article.articleType, category?.name);
 ---
 
 <article class="story-card">
@@ -26,13 +32,15 @@ const { article, authors, category } = Astro.props;
     )
   }
   <div class="story-meta">
-    <span>{article.articleType}</span>
-    {category && <span>{category.name}</span>}
+    <span>{displayArticleType(article.articleType)}</span>
+    {categoryLabel && <span>{categoryLabel}</span>}
     <time datetime={article.publicationDate}>{formatPublicationDate(article.publicationDate)}</time>
   </div>
   <h3 class="card-title">
     <a href={`/articles/${article.slug}/`}>{article.title}</a>
   </h3>
   <p class="card-dek">{article.dek}</p>
-  <p class="card-byline">By {authors.map((author) => author.name).join(' and ')}</p>
+  <p class="card-byline">
+    By <AuthorLinks authors={authors} />
+  </p>
 </article>

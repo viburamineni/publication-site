@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { fixturePublication } from '../../src/contentful/fixtures';
 import {
+  displayArticleType,
+  distinctCategoryLabel,
   estimateReadingMinutes,
   formatPublicationDate,
   normalizeSlug,
@@ -30,6 +32,18 @@ describe('content utilities', () => {
 
   it('formats dates in UTC', () => {
     expect(formatPublicationDate('2026-07-28T23:59:00.000Z')).toBe('July 28, 2026');
+  });
+
+  it('omits a category label when it duplicates the article type', () => {
+    expect(distinctCategoryLabel('Opinion', 'Opinion')).toBeUndefined();
+    expect(distinctCategoryLabel('News', 'World')).toBe('World');
+  });
+
+  it('uses reader-facing article type labels', () => {
+    expect(displayArticleType('News')).toBe('News report');
+    expect(displayArticleType('News Brief')).toBe('Brief update');
+    expect(displayArticleType('Long Form')).toBe('In-depth report');
+    expect(displayArticleType('Analysis')).toBe('Explainer');
   });
 
   it('allows only HTTP(S) external URLs', () => {

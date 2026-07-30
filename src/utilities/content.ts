@@ -28,6 +28,33 @@ export function articlesByType(
   return publishedArticles(publication).filter((article) => types.includes(article.articleType));
 }
 
+export function distinctCategoryLabel(
+  articleType: string,
+  categoryName?: string,
+): string | undefined {
+  const label = categoryName?.trim();
+  if (
+    !label ||
+    label.toLocaleLowerCase('en-US') === articleType.trim().toLocaleLowerCase('en-US')
+  ) {
+    return undefined;
+  }
+  return label;
+}
+
+const articleTypeLabels: Record<Article['articleType'], string> = {
+  'News Brief': 'Brief update',
+  News: 'News report',
+  'Long Form': 'In-depth report',
+  Analysis: 'Explainer',
+  Opinion: 'Opinion',
+  'Book Review': 'Book review',
+};
+
+export function displayArticleType(articleType: Article['articleType']): string {
+  return articleTypeLabels[articleType];
+}
+
 export function estimateReadingMinutes(text: string): number {
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 225));
@@ -42,6 +69,7 @@ export function sanitizeExternalUrl(value: string): string {
 }
 
 export function sanitizeLinkUrl(value: string): string {
+  // eslint-disable-next-line no-control-regex -- URL input must explicitly reject ASCII controls.
   if (/[\u0000-\u0020\u007f]/.test(value) || value.includes('\\')) {
     throw new Error('Link URLs cannot contain whitespace, control characters, or backslashes.');
   }

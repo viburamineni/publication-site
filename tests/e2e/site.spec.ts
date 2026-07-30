@@ -29,6 +29,31 @@ test('search finds an approved fixture article', async ({ page }) => {
   await expect(page.getByRole('link', { name: /harbor town tests/i })).toBeVisible();
 });
 
+test('homepage bylines reveal and open author profiles', async ({ page }) => {
+  await page.goto('/');
+  const authorLink = page.getByRole('link', { name: 'Mara Vale', exact: true }).first();
+  await authorLink.hover();
+  await expect(authorLink).toHaveCSS('text-decoration-line', 'underline');
+  await authorLink.click();
+  await expect(page).toHaveURL(/\/authors\/mara-vale\/$/);
+  await expect(page.getByRole('heading', { name: 'Mara Vale' })).toBeVisible();
+});
+
+test('homepage editorial order and optional notice are intentional', async ({ page }) => {
+  await page.goto('/');
+  const primaryLinks = await page.locator('.desktop-nav a').allTextContents();
+  expect(primaryLinks.slice(-3)).toEqual(['Analysis', 'Opinion', 'Books']);
+  await expect(page.getByRole('complementary', { name: 'Edition notice' })).toHaveCount(0);
+  await expect(page.getByText('Topic', { exact: true })).toBeVisible();
+});
+
+test('article related stories use the configured article relationship', async ({ page }) => {
+  await page.goto('/articles/opinion-room-for-unfinished-sentence/');
+  const related = page.getByRole('region', { name: 'Related stories' });
+  await expect(related).toBeVisible();
+  await expect(related.getByRole('link', { name: /fictional budget vote turns/i })).toBeVisible();
+});
+
 test('keyboard skip link moves to main content', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Tab');

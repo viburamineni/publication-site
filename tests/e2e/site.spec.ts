@@ -7,6 +7,7 @@ const routes = [
   '/',
   '/articles/harbor-town-tests-quieter-preparation/',
   '/categories/world/',
+  '/topics/',
   '/topics/living-with-higher-water/',
   '/authors/mara-vale/',
   '/staff/',
@@ -19,6 +20,10 @@ test('core routes render and navigation works', async ({ page }) => {
     expect(response?.ok(), route).toBe(true);
     await expect(page.locator('h1')).toBeVisible();
   }
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Topics', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/topics\/$/);
+  await expect(page.getByRole('heading', { name: 'Living with higher water' })).toBeVisible();
   await page.goto('/');
   await page.getByRole('link', { name: 'Latest' }).click();
   await expect(page).toHaveURL(/\/latest\/$/);
@@ -69,6 +74,7 @@ test('mobile navigation is operable', async ({ page, isMobile }) => {
   const toggle = page.getByText('Sections', { exact: true });
   await toggle.click();
   const navigation = page.getByRole('navigation', { name: 'Mobile primary' });
+  await expect(navigation.getByRole('link', { name: 'Topics' })).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'Analysis' })).toBeVisible();
   await navigation.getByRole('link', { name: 'Analysis' }).click();
   await expect(page).toHaveURL(/\/categories\/analysis\/$/);
@@ -104,6 +110,7 @@ for (const route of [
   '/',
   '/articles/harbor-town-tests-quieter-preparation/',
   '/staff/',
+  '/topics/',
   '/search/',
 ]) {
   test(`automated accessibility: ${route}`, async ({ page }) => {

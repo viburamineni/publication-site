@@ -150,6 +150,15 @@ The following differences are expected product constraints, not design drift:
 - Cross-page review: captured and inspected the homepage, article, World archive, topic archive, search, and 404 pages at 1159 pixels, plus the homepage at 390 pixels. The masthead remains centered, does not overflow, and maintains a consistent hierarchy above each page type.
 - Evidence: `/tmp/newspaper-font-audit/01-home-1159.png` through `/tmp/newspaper-font-audit/07-home-390.png`.
 
+### Pass 12: topic discovery and publication-name consistency
+
+- Finding: the site generated individual topic archives but did not provide an index where readers could discover every topic.
+- Fix: added `/topics/` as a static, typography-led coverage index. Each entry explains the topic, reports its current story count, and identifies the newest related story without introducing new editorial controls or CMS behavior.
+- Finding: production Contentful stored an uppercase `textLogo` while the development fixture used a title-cased value, causing the masthead to differ between environments.
+- Fix: the masthead now uses the canonical `publicationName`, which was already used by accessibility labels, metadata, and the footer. The footer publication name now uses the same Chomsky face and shifts to a less cramped two-column layout at medium widths.
+- Navigation: desktop and mobile readers can reach the index through the header's edition tools; the mobile Sections menu also includes Topics and exposes its active state.
+- Evidence: browser inspection at 1280 pixels confirmed a centered masthead, readable index hierarchy, aligned topic rows, a consistent footer wordmark, and zero horizontal overflow.
+
 ## Anti-slop review
 
 - No blue-purple or candy gradients, background glows, radial halos, bloom shadows, glass, or clipped glow.
@@ -168,12 +177,10 @@ The following differences are expected product constraints, not design drift:
 
 - `npm run test`: 26 passed.
 - `npm run typecheck`: passed with 12 dependency deprecation hints and no errors.
-- `npm run build:test`: passed, 29 pages built.
-- `npm run test:e2e`: 25 passed, including editorial-order, optional-notice, related-story, and author-link coverage; 1 desktop-only mobile-navigation case skipped as designed.
-- `npm run deploy:worker:dry-run`: passed, 104 static assets, no bindings.
-- Scoped Prettier and ESLint checks for the modified source files: passed.
+- `npm run build:test`: passed, 30 pages built.
+- `npm run test:e2e`: passed, including the Topics route, desktop and mobile topic navigation, editorial-order, optional-notice, related-story, author-link, and accessibility coverage.
+- `npm run deploy:worker:dry-run`: passed, 105 static assets, no bindings.
+- Prettier, ESLint, and the full `npm run ci` gate: passed.
 - Browser console: no warnings or errors.
-- Full `npm run ci`: blocked before lint by three pre-existing formatting failures in `CONTENT_MODEL.md`, `src/layouts/BaseLayout.astro`, and `tests/unit/validation.test.ts`.
-- Full `npm run lint`: passed after documenting the intentional control-character URL check for ESLint.
 
 final result: passed

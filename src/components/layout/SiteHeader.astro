@@ -23,12 +23,17 @@ const isCurrent = (url: string) => currentPath === url || currentPath.startsWith
 <header class="site-header">
   <div class="page-shell utility-row">
     <span>{date}</span>
-    <a class="utility-search" href="/search/">Search the edition</a>
+    <nav class="utility-actions" aria-label="Edition tools">
+      <a href="/topics/" aria-current={isCurrent('/topics/') ? 'page' : undefined}>Topics</a>
+      <a href="/search/" aria-current={isCurrent('/search/') ? 'page' : undefined}>
+        Search the edition
+      </a>
+    </nav>
   </div>
   <div class="page-shell masthead">
     <div class="masthead-identity">
       <a class="masthead-name" href="/" aria-label={`${settings.publicationName} home`}>
-        {settings.textLogo}
+        {settings.publicationName}
       </a>
     </div>
     <p class="masthead-tagline">{settings.tagline}</p>
@@ -54,10 +59,18 @@ const isCurrent = (url: string) => currentPath === url || currentPath.startsWith
   <details class="page-shell">
     <summary>Sections</summary>
     <ul class="nav-list">
+      <li>
+        <a href="/topics/" aria-current={isCurrent('/topics/') ? 'page' : undefined}>Topics</a>
+      </li>
       {
         categories.map((category) => (
           <li>
-            <a href={`/categories/${category.slug}/`}>{category.name}</a>
+            <a
+              href={`/categories/${category.slug}/`}
+              aria-current={isCurrent(`/categories/${category.slug}/`) ? 'page' : undefined}
+            >
+              {category.name}
+            </a>
           </li>
         ))
       }

@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publication } from '../../contentful/data';
+import { formatPublicationDate, publishedArticles } from '../../utilities/content';
+
+const articles = publishedArticles(publication);
+const topicEntries = publication.topics.map((topic) => {
+  const relatedArticles = articles.filter(
+    (article) =>
+      article.topicIds.includes(topic.id) || topic.relatedArticleIds.includes(article.id),
+  );
+
+  return {
+    topic,
+    articles: relatedArticles,
+    latestArticle: relatedArticles.at(0),
+  };
+});
+---
+
+<BaseLayout
+  title="Topics"
+  description="Collections of related reporting that follow one subject over time."
+>
+  <header class="page-shell page-header topic-index-header">
+    <h1 class="page-title">Topics</h1>
+    <p class="page-description">
+      A topic brings related stories together in one place, so readers can follow a subject as the
+      reporting develops.
+    </p>
+  </header>
+
+  <section class="page-shell topic-index" aria-labelledby="all-topics">
+    <h2 class="visually-hidden" id="all-topics">All topics</h2>
+    {
+      topicEntries.map(({ topic, articles: relatedArticles, latestArticle }) => (
+        <article class="topic-index-row">
+          <div class="topic-index-main">
+            <p class="topic-index-count">
+              {relatedArticles.length} {relatedArticles.length === 1 ? 'story' : 'stories'}
+            </p>
+            <h2>
+              <a href={`/topics/${topic.slug}/`}>{topic.name}</a>
+            </h2>
+            <p>{topic.summary}</p>
+            <a class="text-action" href={`/topics/${topic.slug}/`}>
+              View topic <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          <div class="topic-index-latest">
+            {latestArticle ? (
+              <>
+                <p class="topic-index-latest-label">Latest in this topic</p>
+                <h3>
+                  <a href={`/articles/${latestArticle.slug}/`}>{latestArticle.title}</a>
+                </h3>
+                <time datetime={latestArticle.publicationDate}>
+                  {formatPublicationDate(latestArticle.publicationDate)}
+                </time>
+              </>
+            ) : (
+              <>
+                <p class="topic-index-latest-label">No stories yet</p>
+                <p>Coverage will appear here when the first related story is published.</p>
+              </>
+            )}
+          </div>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>

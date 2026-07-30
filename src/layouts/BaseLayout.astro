@@ -64,7 +64,11 @@ const socialImage = image ? new URL(image, Astro.site).toString() : undefined;
     {socialImage && <meta name="twitter:image" content={socialImage} />}
     {
       structuredData && (
-        <script is:inline type="application/ld+json" set:html={serializeJsonForHtml(structuredData)} />
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={serializeJsonForHtml(structuredData)}
+        />
       )
     }
   </head>

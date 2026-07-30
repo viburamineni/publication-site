@@ -35,9 +35,9 @@ describe('publication validation', () => {
         previousSlugs: ['legacy\n/* https://attacker.example/:splat 302\n#'],
       }).success,
     ).toBe(false);
-    expect(articleSchema.safeParse({ ...article, previousSlugs: ['valid-previous-slug'] }).success).toBe(
-      true,
-    );
+    expect(
+      articleSchema.safeParse({ ...article, previousSlugs: ['valid-previous-slug'] }).success,
+    ).toBe(true);
   });
 
   it('rejects executable footer URLs while preserving internal links', () => {

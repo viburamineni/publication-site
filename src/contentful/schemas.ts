@@ -1,14 +1,8 @@
 import { z } from 'zod';
 import { sanitizeLinkUrl } from '../utilities/content';
+import { articleTypes, conditionalRequirementsForArticle } from './article-requirements';
 
-export const articleTypes = [
-  'News Brief',
-  'News',
-  'Long Form',
-  'Analysis',
-  'Opinion',
-  'Book Review',
-] as const;
+export { articleTypes } from './article-requirements';
 
 export const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
@@ -132,14 +126,15 @@ export const articleSchema = z
     readingMinutes: z.number().int().positive(),
   })
   .superRefine((article, context) => {
-    if (article.articleType !== 'News Brief' && !article.heroImage) {
+    const requirements = conditionalRequirementsForArticle(article.articleType);
+    if (requirements.heroImage && !article.heroImage) {
       context.addIssue({
         code: 'custom',
         message: 'Hero image is required for all articles except News Brief.',
         path: ['heroImage'],
       });
     }
-    if (article.articleType === 'Book Review' && !article.bookId) {
+    if (requirements.book && !article.bookId) {
       context.addIssue({
         code: 'custom',
         message: 'Book Review articles require a Book reference.',

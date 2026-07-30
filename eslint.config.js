@@ -10,6 +10,7 @@ export default tseslint.config(
       'node_modules/**',
       'public/generated/**',
       'contentful/exports/**',
+      'contentful/apps/**/dist/**',
     ],
   },
   eslint.configs.recommended,
@@ -21,6 +22,16 @@ export default tseslint.config(
       globals: {
         module: 'readonly',
         process: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['contentful/apps/**/src/**/*.ts'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        URLSearchParams: 'readonly',
+        window: 'readonly',
       },
     },
   },

@@ -26,9 +26,12 @@ deliberately needs to curate a special edition or announcement.
 4. For the hero, create an **Image** entry, upload the asset, and provide useful alternative text and a photographer/source credit. Record rights notes. News Brief is the only type that may omit a hero.
 5. In Body, use paragraphs, H2/H3, links, lists, or blockquotes. To add a Pull Quote or Fact Box, use **Embed > Entry**, create or select the corresponding type, then insert it.
 6. Use **Analysis** for evidence-led explanation and **Opinion** for an argued position. A Book Review also requires a Book entry.
-7. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
-8. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
-9. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.
+7. Review **Publishing checks** in the sidebar. Every item must pass before Contentful will publish
+   the Article. A News Brief may omit its Hero Image; every other type needs a published Hero Image,
+   and a Book Review also needs a published Book entry.
+8. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
+9. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
+10. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.
 
 When creating a new Category, set **Show in navigation** and **Display order** on that Category.
 Do not update Site Settings or Homepage just to add it to the menu.

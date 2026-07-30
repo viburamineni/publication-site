@@ -201,6 +201,7 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
   for (const entry of byType.get('article') ?? []) {
     const value = fields(entry);
     const body = attachEmbeddedImages(value.body);
+    // `publishingChecks` is an omitted editor-only field and intentionally never enters site data.
     const article = {
       id: entry.sys.id,
       title: value.title,

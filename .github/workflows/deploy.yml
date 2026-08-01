@@ -42,7 +42,7 @@ jobs:
 
       - name: Restore generated Contentful images
         id: image-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: source/public/generated
           key: contentful-images-${{ github.run_id }}
@@ -62,7 +62,7 @@ jobs:
 
       - name: Save generated Contentful images
         if: success() && steps.image-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: source/public/generated
           key: contentful-images-${{ github.run_id }}

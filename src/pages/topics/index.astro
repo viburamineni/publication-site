@@ -4,6 +4,13 @@ import { publication } from '../../contentful/data';
 import { formatPublicationDate, publishedArticles } from '../../utilities/content';
 
 const articles = publishedArticles(publication);
+const topicNames = new Intl.ListFormat('en-US', {
+  style: 'long',
+  type: 'conjunction',
+}).format(publication.topics.map((topic) => topic.name));
+const topicDescription = topicNames
+  ? `${topicNames}.`
+  : 'The latest subjects covered by the publication.';
 const topicEntries = publication.topics.map((topic) => {
   const relatedArticles = articles.filter(
     (article) =>
@@ -18,16 +25,10 @@ const topicEntries = publication.topics.map((topic) => {
 });
 ---
 
-<BaseLayout
-  title="Topics"
-  description="Collections of related reporting that follow one subject over time."
->
+<BaseLayout title="Topics" description={topicDescription}>
   <header class="page-shell page-header topic-index-header">
     <h1 class="page-title">Topics</h1>
-    <p class="page-description">
-      A topic brings related stories together in one place, so readers can follow a subject as the
-      reporting develops.
-    </p>
+    <p class="page-description">{topicDescription}</p>
   </header>
 
   <section class="page-shell topic-index" aria-labelledby="all-topics">
@@ -44,14 +45,14 @@ const topicEntries = publication.topics.map((topic) => {
             </h2>
             <p>{topic.summary}</p>
             <a class="text-action" href={`/topics/${topic.slug}/`}>
-              View topic <span aria-hidden="true">↗</span>
+              More on {topic.name} <span aria-hidden="true">↗</span>
             </a>
           </div>
 
           <div class="topic-index-latest">
             {latestArticle ? (
               <>
-                <p class="topic-index-latest-label">Latest in this topic</p>
+                <p class="topic-index-latest-label">Latest</p>
                 <h3>
                   <a href={`/articles/${latestArticle.slug}/`}>{latestArticle.title}</a>
                 </h3>
@@ -61,8 +62,8 @@ const topicEntries = publication.topics.map((topic) => {
               </>
             ) : (
               <>
-                <p class="topic-index-latest-label">No stories yet</p>
-                <p>Coverage will appear here when the first related story is published.</p>
+                <p class="topic-index-latest-label">Coming soon</p>
+                <p>New stories are on the way.</p>
               </>
             )}
           </div>

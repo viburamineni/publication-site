@@ -37,7 +37,7 @@ const sections = [
   },
   {
     title: 'Opinion',
-    description: 'Arguments from staff and guest writers, clearly separate from news.',
+    description: 'Columns and arguments from staff and guest writers.',
     articles: articles.filter((article) => article.storyLabel === 'Opinion').slice(0, 3),
   },
   {
@@ -126,9 +126,7 @@ const sections = [
         <div class="page-shell">
           <div class="section-intro">
             <h2 class="section-title">The wider edition</h2>
-            <p>
-              Reporting selected to show what changed, what it means, and what remains uncertain.
-            </p>
+            <p>More reporting from across today’s edition.</p>
           </div>
           <div class="story-grid">
             {secondary.map((article) => (
@@ -188,12 +186,9 @@ const sections = [
           <div class="topic-copy">
             <p class="story-kicker">Topic</p>
             <h2>{featuredTopic.name}</h2>
-            <p class="topic-definition">
-              A collection of articles following one subject over time.
-            </p>
             <p>{featuredTopic.summary}</p>
             <a class="text-action" href={`/topics/${featuredTopic.slug}/`}>
-              View related stories <span aria-hidden="true">↗</span>
+              More on {featuredTopic.name} <span aria-hidden="true">↗</span>
             </a>
           </div>
         </div>

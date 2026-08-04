@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Search"
-  description="Find published stories by headline, author, subject, or phrase."
+  description="Find stories by headline, author, subject, or phrase."
   robots="noindex, follow"
 >
   <header class="page-shell page-header">
@@ -83,8 +83,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           )
           .join('');
       } catch {
-        status.textContent =
-          'The search index is unavailable in local development. Build the site to generate it.';
+        status.textContent = 'Search is temporarily unavailable. Please try again later.';
       }
     };
 

@@ -6,6 +6,6 @@ import { publishedArticles } from '../utilities/content';
 
 <ArchiveLayout
   title="Latest"
-  description="Every approved story in reverse chronological order."
+  description={`The newest reporting from ${publication.settings.publicationName}.`}
   articles={publishedArticles(publication)}
 />

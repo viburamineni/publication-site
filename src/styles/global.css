@@ -576,14 +576,6 @@ input {
   color: var(--muted);
 }
 
-.topic-copy .topic-definition {
-  margin-bottom: 0;
-  color: var(--ink);
-  font-family: var(--utility);
-  font-size: 0.78rem;
-  font-weight: 650;
-}
-
 .text-action {
   width: fit-content;
   color: var(--utility-link);

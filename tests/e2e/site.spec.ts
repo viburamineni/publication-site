@@ -60,6 +60,19 @@ test('homepage editorial order and optional notice are intentional', async ({ pa
   await expect(page.getByRole('link', { name: 'The Transoceanic Cable home' })).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Edition notice' })).toHaveCount(0);
   await expect(page.getByText('Topic', { exact: true })).toBeVisible();
+  await expect(page.getByText(/a collection of articles following one subject/i)).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /more on world events/i })).toBeVisible();
+});
+
+test('topic pages speak to readers without explaining the publishing system', async ({ page }) => {
+  await page.goto('/topics/');
+  await expect(
+    page.getByText(
+      'Book Reviews, Invitational Pieces, Analysis, World History, World Events, and Geopolitics.',
+    ),
+  ).toBeVisible();
+  await expect(page.getByText(/a topic brings related stories together/i)).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /more on book reviews/i })).toBeVisible();
 });
 
 test('article related stories use the configured article relationship', async ({ page }) => {

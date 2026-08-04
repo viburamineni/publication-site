@@ -4,10 +4,8 @@ interface Props {
   message?: string;
 }
 
-const {
-  title = 'The next edition is in progress',
-  message = 'New reporting will appear here as it is published.',
-} = Astro.props;
+const { title = 'More stories are on the way', message = 'Check back soon for new reporting.' } =
+  Astro.props;
 ---
 
 <section class="empty-state">

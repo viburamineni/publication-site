@@ -1,0 +1,1645 @@
+{
+  "exportedAt": "2026-08-04T15:47:56.413Z",
+  "spaceId": "iea4zh2wm1z5",
+  "environmentId": "master",
+  "contentTypes": [
+    {
+      "sys": {
+        "id": "homepage",
+        "version": 6
+      },
+      "name": "Homepage",
+      "description": "Single front-page curation entry. Latest remains automatic; all other homepage selections live here.",
+      "displayField": "internalName",
+      "fields": [
+        {
+          "id": "internalName",
+          "name": "Internal name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "defaultValue": {
+            "en-US": "Homepage"
+          },
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "leadArticle",
+          "name": "Featured article",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "article"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "secondaryLeadArticles",
+          "name": "Editor’s picks",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 3
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "breakingNewsArticles",
+          "name": "Breaking-news articles",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 5
+              }
+            }
+          ],
+          "disabled": true,
+          "omitted": true,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "featuredAnalysis",
+          "name": "Analysis section",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 3
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "featuredOpinions",
+          "name": "Opinion section",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 3
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "featuredBookReviews",
+          "name": "Books and reviews section",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 3
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "featuredTopic",
+          "name": "Featured topic",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "topic"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "categoryDisplayOrder",
+          "name": "Category display order",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": true,
+          "omitted": true,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "category"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "optionalAnnouncementStrip",
+          "name": "Homepage announcement",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 180
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "book",
+        "version": 4
+      },
+      "name": "Book",
+      "description": "Optional book metadata for Reviews that are about a book.",
+      "displayField": "title",
+      "fields": [
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "author",
+          "name": "Author",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "coverImage",
+          "name": "Cover image",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "publisher",
+          "name": "Publisher",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "publicationYear",
+          "name": "Publication year",
+          "type": "Integer",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "range": {
+                "min": 1000,
+                "max": 3000
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "isbn",
+          "name": "ISBN",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 10,
+                "max": 17
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "externalInformationUrl",
+          "name": "External information URL",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "article",
+        "version": 20
+      },
+      "name": "Article",
+      "description": "Editorial work. Publishing makes an entry eligible for the public site.",
+      "displayField": "title",
+      "fields": [
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 10,
+                "max": 140
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "slug",
+          "name": "Slug",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "unique": true
+            },
+            {
+              "regexp": {
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "flags": null
+              },
+              "message": "Use lowercase words separated by hyphens."
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "dek",
+          "name": "Dek",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 30,
+                "max": 350
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "articleType",
+          "name": "Does this story need a special label?",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "in": [
+                "Standard story",
+                "Brief",
+                "Analysis",
+                "Opinion",
+                "Review"
+              ]
+            }
+          ],
+          "defaultValue": {
+            "en-US": "Standard story"
+          },
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "authors",
+          "name": "Authors",
+          "type": "Array",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "author"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "primaryCategory",
+          "name": "Where does this story belong?",
+          "type": "Link",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "linkContentType": [
+                "category"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "topics",
+          "name": "Topics",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "topic"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "heroImage",
+          "name": "Hero image",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "body",
+          "name": "Body",
+          "type": "RichText",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "enabledNodeTypes": [
+                "heading-2",
+                "heading-3",
+                "ordered-list",
+                "unordered-list",
+                "hr",
+                "blockquote",
+                "embedded-entry-block",
+                "entry-hyperlink",
+                "hyperlink"
+              ]
+            },
+            {
+              "nodes": {
+                "embedded-entry-block": [
+                  {
+                    "linkContentType": [
+                      "image",
+                      "pullQuote",
+                      "factBox",
+                      "relatedArticles",
+                      "sectionDivider",
+                      "correctionNotice"
+                    ]
+                  }
+                ],
+                "entry-hyperlink": [
+                  {
+                    "linkContentType": [
+                      "article"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "enabledMarks": [
+                "bold",
+                "italic",
+                "underline",
+                "code"
+              ],
+              "message": "Only bold, italic, underline, and code marks are allowed"
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "sources",
+          "name": "Sources",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "source"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "relatedArticles",
+          "name": "Related articles",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 6
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "displayPublicationDate",
+          "name": "Display publication date",
+          "type": "Date",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "displayUpdatedDate",
+          "name": "Display updated date",
+          "type": "Date",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "book",
+          "name": "Book",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "book"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "correctionNote",
+          "name": "Correction note",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "previousSlugs",
+          "name": "Previous slugs",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Symbol",
+            "validations": []
+          }
+        },
+        {
+          "id": "featured",
+          "name": "Featured",
+          "type": "Boolean",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "defaultValue": {
+            "en-US": false
+          },
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "seoTitle",
+          "name": "SEO title",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 70
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "seoDescription",
+          "name": "SEO description",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 170
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "internalNotes",
+          "name": "Internal notes",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "publishingChecks",
+          "name": "Publishing checks",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "in": [
+                "ready"
+              ],
+              "message": "Open Publishing checks in the sidebar and fix every reported issue."
+            }
+          ],
+          "disabled": true,
+          "omitted": true
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "siteSettings",
+        "version": 2
+      },
+      "name": "Site Settings",
+      "description": "Singleton publication identity and launch controls.",
+      "displayField": "publicationName",
+      "fields": [
+        {
+          "id": "publicationName",
+          "name": "Publication name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "shortName",
+          "name": "Short name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "tagline",
+          "name": "Tagline",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "description",
+          "name": "Description",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "textLogo",
+          "name": "Text logo",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "logoImage",
+          "name": "Logo image",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "favicon",
+          "name": "Favicon",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Asset"
+        },
+        {
+          "id": "defaultSocialImage",
+          "name": "Default social image",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "navigationCategories",
+          "name": "Navigation categories",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "category"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "footerSections",
+          "name": "Footer sections",
+          "type": "Object",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "contactLinks",
+          "name": "Contact links",
+          "type": "Object",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "socialLinks",
+          "name": "Social links",
+          "type": "Object",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "copyrightText",
+          "name": "Copyright text",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "siteLaunched",
+          "name": "Site launched",
+          "type": "Boolean",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "defaultValue": {
+            "en-US": false
+          },
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "topic",
+        "version": 4
+      },
+      "name": "Topic",
+      "description": "A continuing event or macro trend.",
+      "displayField": "name",
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "slug",
+          "name": "Slug",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "unique": true
+            },
+            {
+              "regexp": {
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "flags": null
+              },
+              "message": "Use lowercase words separated by hyphens."
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "summary",
+          "name": "Summary",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "heroImage",
+          "name": "Hero image",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "relatedArticles",
+          "name": "Related articles",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        },
+        {
+          "id": "timelineIntroduction",
+          "name": "Timeline introduction",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "featuredStatus",
+          "name": "Featured status",
+          "type": "Boolean",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "defaultValue": {
+            "en-US": false
+          },
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "relatedArticles",
+        "version": 2
+      },
+      "name": "Related Articles",
+      "description": "A curated related-reading block embedded in an article.",
+      "displayField": "heading",
+      "fields": [
+        {
+          "id": "heading",
+          "name": "Heading",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "defaultValue": {
+            "en-US": "Related reading"
+          },
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "articles",
+          "name": "Articles",
+          "type": "Array",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 1,
+                "max": 4
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "article"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "correctionNotice",
+        "version": 2
+      },
+      "name": "Correction Notice",
+      "description": "A correction embedded at the relevant point in article text.",
+      "displayField": "note",
+      "fields": [
+        {
+          "id": "note",
+          "name": "Correction note",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "sectionDivider",
+        "version": 2
+      },
+      "name": "Section Divider",
+      "description": "A semantic break in a long-form article.",
+      "displayField": "label",
+      "fields": [
+        {
+          "id": "label",
+          "name": "Internal label",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "factBox",
+        "version": 2
+      },
+      "name": "Fact Box",
+      "description": "A concise contextual box embedded in an article.",
+      "displayField": "title",
+      "fields": [
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "body",
+          "name": "Body",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "pullQuote",
+        "version": 2
+      },
+      "name": "Pull Quote",
+      "description": "A quoted sentence embedded in article Rich Text.",
+      "displayField": "quote",
+      "fields": [
+        {
+          "id": "quote",
+          "name": "Quote",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "attribution",
+          "name": "Attribution",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "category",
+        "version": 4
+      },
+      "name": "Category",
+      "description": "A primary publication section.",
+      "displayField": "name",
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "slug",
+          "name": "Slug",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "unique": true
+            },
+            {
+              "regexp": {
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "flags": null
+              },
+              "message": "Use lowercase words separated by hyphens."
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "description",
+          "name": "Description",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "headerImage",
+          "name": "Header image",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "displayOrder",
+          "name": "Display order",
+          "type": "Integer",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "range": {
+                "min": 0
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "showInNavigation",
+          "name": "Show in navigation",
+          "type": "Boolean",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "defaultValue": {
+            "en-US": true
+          },
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "featuredCategoryColorToken",
+          "name": "Featured category color token",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "in": [
+                "pine",
+                "oxblood",
+                "clay",
+                "river",
+                "plum",
+                "graphite"
+              ]
+            }
+          ],
+          "defaultValue": {
+            "en-US": "graphite"
+          },
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "author",
+        "version": 4
+      },
+      "name": "Author",
+      "description": "Staff or guest contributor profile.",
+      "displayField": "displayName",
+      "fields": [
+        {
+          "id": "displayName",
+          "name": "Display name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "slug",
+          "name": "Slug",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "unique": true
+            },
+            {
+              "regexp": {
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "flags": null
+              },
+              "message": "Use lowercase words separated by hyphens."
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "staffPhotograph",
+          "name": "Staff photograph",
+          "type": "Link",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "linkContentType": [
+                "image"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "positionOrTitle",
+          "name": "Position or title",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "shortBiography",
+          "name": "Short biography",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 20,
+                "max": 400
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "fullBiography",
+          "name": "Full biography",
+          "type": "Text",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "areasOfCoverage",
+          "name": "Areas of coverage",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Symbol",
+            "validations": []
+          }
+        },
+        {
+          "id": "socialLinks",
+          "name": "Social links",
+          "type": "Object",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "personalWebsite",
+          "name": "Personal website",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "staffOrGuestDesignation",
+          "name": "Staff or guest designation",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "in": [
+                "Staff",
+                "Guest"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "activeOrFormerStaffDesignation",
+          "name": "Active or former staff designation",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "in": [
+                "Active",
+                "Former"
+              ]
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "source",
+        "version": 2
+      },
+      "name": "Source",
+      "description": "A source cited by an article.",
+      "displayField": "sourceTitle",
+      "fields": [
+        {
+          "id": "sourceTitle",
+          "name": "Source title",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "publisher",
+          "name": "Publisher",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "url",
+          "name": "URL",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "regexp": {
+                "pattern": "^https://",
+                "flags": null
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "publicationDate",
+          "name": "Publication date",
+          "type": "Date",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "accessDate",
+          "name": "Access date",
+          "type": "Date",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "optionalNote",
+          "name": "Optional note",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "image",
+        "version": 2
+      },
+      "name": "Image",
+      "description": "Editorial image plus required accessibility, credit, and rights metadata.",
+      "displayField": "alternativeText",
+      "fields": [
+        {
+          "id": "asset",
+          "name": "Asset",
+          "type": "Link",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false,
+          "linkType": "Asset"
+        },
+        {
+          "id": "alternativeText",
+          "name": "Alternative text",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "min": 5,
+                "max": 240
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "caption",
+          "name": "Caption",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "photographerOrSourceCredit",
+          "name": "Photographer or source credit",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "rightsOrUsageNote",
+          "name": "Rights or usage note",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "focalPointDescription",
+          "name": "Focal point description",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
+    }
+  ],
+  "projection": {
+    "source": "content-model-2026-08-04.json",
+    "migration": "contentful/migrations/006-clean-homepage-controls.cjs",
+    "appliedToContentful": true
+  }
+}

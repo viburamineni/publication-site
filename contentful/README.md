@@ -32,6 +32,15 @@ npm run contentful:migrate:publishing-checks
 Then follow [apps/publishing-checks/README.md](apps/publishing-checks/README.md) to build, upload, and
 install the sidebar app.
 
+To simplify the Homepage editor and hide controls the current site does not render:
+
+```sh
+CONTENTFUL_SPACE_ID=... \
+CONTENTFUL_ENVIRONMENT=master \
+CONTENTFUL_MANAGEMENT_TOKEN=... \
+npm run contentful:migrate:homepage-controls
+```
+
 The management token is temporary. Do not commit it, expose it to browser code, or store it in
 Cloudflare after setup. Export the resulting model with `npm run contentful:export`, then revoke the
 token.

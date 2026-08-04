@@ -590,20 +590,9 @@ export const fixturePublication: Publication = publicationSchema.parse({
   homepage: {
     curated: false,
     secondaryLeadArticleIds: [],
-    breakingArticleIds: [],
     featuredAnalysisIds: [],
     featuredOpinionIds: [],
     featuredReviewIds: [],
-    categoryOrderIds: [
-      'category-analysis',
-      'category-guest-articles',
-      'category-culture-history',
-      'category-africa',
-      'category-americas',
-      'category-asia',
-      'category-australia-oceania',
-      'category-europe',
-    ],
     announcement: '',
   },
   articles: articleDrafts.map((article) => ({

@@ -140,12 +140,10 @@ export const homepageSchema = z.object({
   curated: z.boolean().default(false),
   leadArticleId: z.string().optional(),
   secondaryLeadArticleIds: z.array(z.string()).default([]),
-  breakingArticleIds: z.array(z.string()).default([]),
   featuredAnalysisIds: z.array(z.string()).default([]),
   featuredOpinionIds: z.array(z.string()).default([]),
   featuredReviewIds: z.array(z.string()).default([]),
   featuredTopicId: z.string().optional(),
-  categoryOrderIds: z.array(z.string()).default([]),
   announcement: z.string().default(''),
 });
 
@@ -215,7 +213,6 @@ export const publicationSchema = z
     const homepageArticleReferences = [
       ...(publication.homepage.leadArticleId ? [publication.homepage.leadArticleId] : []),
       ...publication.homepage.secondaryLeadArticleIds,
-      ...publication.homepage.breakingArticleIds,
       ...publication.homepage.featuredAnalysisIds,
       ...publication.homepage.featuredOpinionIds,
       ...publication.homepage.featuredReviewIds,

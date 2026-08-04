@@ -232,7 +232,6 @@ async function seed(publishArticles: boolean) {
   }
 
   const homepage = await upsertEntry('homepage', 'homepage-default', {
-    categoryDisplayOrder: fixturePublication.homepage.categoryOrderIds.map(entryLink),
     optionalAnnouncementStrip: fixturePublication.homepage.announcement,
   });
   if (publishArticles && homepage.isPublished()) await homepage.unpublish();

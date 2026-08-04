@@ -268,13 +268,6 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
           'secondaryLeadArticles',
         )
       : [],
-    breakingArticleIds: homepageEntry
-      ? referenceIds(
-          homepageFields.breakingNewsArticles,
-          homepageEntry.sys.id,
-          'breakingNewsArticles',
-        )
-      : [],
     featuredAnalysisIds: homepageEntry
       ? referenceIds(homepageFields.featuredAnalysis, homepageEntry.sys.id, 'featuredAnalysis')
       : [],
@@ -297,15 +290,6 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
           ),
         }
       : {}),
-    categoryOrderIds: homepageEntry
-      ? referenceIds(
-          homepageFields.categoryDisplayOrder,
-          homepageEntry.sys.id,
-          'categoryDisplayOrder',
-        )
-      : categories
-          .sort((left, right) => left.displayOrder - right.displayOrder)
-          .map((category) => category.id),
     announcement: homepageFields.optionalAnnouncementStrip ?? '',
   };
 

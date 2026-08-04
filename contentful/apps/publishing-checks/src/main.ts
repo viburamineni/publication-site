@@ -11,6 +11,26 @@ const ARTICLE_CONTENT_TYPE = 'article';
 const VALIDATION_FIELD = 'publishingChecks';
 const READY_VALUE = 'ready';
 
+type EntryDependencyKind = 'entry' | 'asset';
+
+interface EntryDependency {
+  fieldId: string;
+  kind: EntryDependencyKind;
+  required?: boolean;
+}
+
+const ENTRY_DEPENDENCIES: Record<string, EntryDependency[]> = {
+  image: [{ fieldId: 'asset', kind: 'asset', required: true }],
+  author: [{ fieldId: 'staffPhotograph', kind: 'entry' }],
+  category: [{ fieldId: 'headerImage', kind: 'entry' }],
+  topic: [
+    { fieldId: 'heroImage', kind: 'entry' },
+    { fieldId: 'relatedArticles', kind: 'entry' },
+  ],
+  book: [{ fieldId: 'coverImage', kind: 'entry' }],
+  relatedArticles: [{ fieldId: 'articles', kind: 'entry' }],
+};
+
 function requireAppRoot(): HTMLElement {
   const element = document.querySelector<HTMLElement>('#app');
   if (!element) throw new Error('Publishing checks app root is missing.');
@@ -40,7 +60,7 @@ function renderChecks(checks: PublishingCheck[], busy = false): void {
 
   app.innerHTML = `
     <section class="panel" aria-labelledby="publishing-checks-title">
-      <h2 class="title" id="publishing-checks-title">Publishing checks</h2>
+      <h1 class="title" id="publishing-checks-title">Publishing checks</h1>
       <p class="summary" data-state="${summaryState}" role="status" aria-live="polite">${summary}</p>
       <ul class="check-list">
         ${checks
@@ -66,16 +86,92 @@ function renderChecks(checks: PublishingCheck[], busy = false): void {
 function renderSidebarSetupError(message: string): void {
   app.innerHTML = `
     <section class="panel" aria-labelledby="publishing-checks-title">
-      <h2 class="title" id="publishing-checks-title">Publishing checks</h2>
+      <h1 class="title" id="publishing-checks-title">Publishing checks</h1>
       <p class="summary" data-state="fail">${escapeHtml(message)}</p>
     </section>
   `;
 }
 
-async function linkedEntryStatus(sdk: SidebarAppSDK, entryId: string): Promise<LinkedEntryStatus> {
+function localizedValue(value: unknown, locale: string): unknown {
+  if (!value || typeof value !== 'object') return undefined;
+  const localized = value as Record<string, unknown>;
+  return localized[locale] ?? Object.values(localized)[0];
+}
+
+function linkIds(value: unknown): string[] {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return values
+    .map((item) => {
+      if (!item || typeof item !== 'object') return undefined;
+      const id = (item as { sys?: { id?: unknown } }).sys?.id;
+      return typeof id === 'string' ? id : undefined;
+    })
+    .filter((id): id is string => Boolean(id));
+}
+
+function richTextEntryLinks(value: unknown): Array<{ sys: { id: string } }> {
+  const ids = new Set<string>();
+  const visit = (node: unknown): void => {
+    if (!node || typeof node !== 'object') return;
+    const record = node as Record<string, unknown>;
+    if (record.nodeType === 'embedded-entry-block' || record.nodeType === 'entry-hyperlink') {
+      const data = record.data as { target?: { sys?: { id?: unknown } } } | undefined;
+      const id = data?.target?.sys?.id;
+      if (typeof id === 'string') ids.add(id);
+    }
+    if (Array.isArray(record.content)) record.content.forEach(visit);
+  };
+  visit(value);
+  return [...ids].map((id) => ({ sys: { id } }));
+}
+
+function nestedStatus(status: LinkedEntryStatus): LinkedEntryStatus {
+  if (status === 'published') return 'published';
+  if (status === 'draft' || status === 'dependency-draft') return 'dependency-draft';
+  if (status === 'missing' || status === 'dependency-missing') return 'dependency-missing';
+  return 'dependency-unavailable';
+}
+
+async function linkedAssetStatus(sdk: SidebarAppSDK, assetId: string): Promise<LinkedEntryStatus> {
+  try {
+    const asset = await sdk.cma.asset.get({ assetId });
+    return asset.sys.publishedVersion ? 'published' : 'draft';
+  } catch (error) {
+    const status = (error as { status?: unknown }).status;
+    return status === 404 ? 'missing' : 'unavailable';
+  }
+}
+
+async function linkedEntryStatus(
+  sdk: SidebarAppSDK,
+  entryId: string,
+  visited = new Set<string>(),
+): Promise<LinkedEntryStatus> {
+  if (visited.has(entryId)) return 'published';
+  const nextVisited = new Set(visited).add(entryId);
   try {
     const entry = await sdk.cma.entry.get({ entryId });
-    return entry.sys.publishedVersion ? 'published' : 'draft';
+    if (!entry.sys.publishedVersion) return 'draft';
+
+    const contentTypeId = entry.sys.contentType.sys.id;
+    const dependencies = ENTRY_DEPENDENCIES[contentTypeId] ?? [];
+    for (const dependency of dependencies) {
+      const value = localizedValue(entry.fields[dependency.fieldId], sdk.locales.default);
+      const ids = linkIds(value);
+      if (dependency.required && ids.length === 0) return 'dependency-missing';
+
+      const statuses = await Promise.all(
+        ids.map((id) =>
+          dependency.kind === 'asset'
+            ? linkedAssetStatus(sdk, id)
+            : linkedEntryStatus(sdk, id, nextVisited),
+        ),
+      );
+      const failure = statuses.find((status) => status !== 'published');
+      if (failure) return nestedStatus(failure);
+    }
+
+    return 'published';
   } catch (error) {
     const status = (error as { status?: unknown }).status;
     return status === 404 ? 'missing' : 'unavailable';
@@ -108,11 +204,28 @@ function setupSidebar(sdk: SidebarAppSDK): void {
   }
 
   const storyLabel = sdk.entry.fields.articleType;
+  const authors = sdk.entry.fields.authors;
+  const primaryCategory = sdk.entry.fields.primaryCategory;
+  const topics = sdk.entry.fields.topics;
   const heroImage = sdk.entry.fields.heroImage;
+  const sources = sdk.entry.fields.sources;
   const book = sdk.entry.fields.book;
+  const relatedArticles = sdk.entry.fields.relatedArticles;
+  const body = sdk.entry.fields.body;
   const validationField = sdk.entry.fields[VALIDATION_FIELD];
 
-  if (!storyLabel || !heroImage || !book || !validationField) {
+  if (
+    !storyLabel ||
+    !authors ||
+    !primaryCategory ||
+    !topics ||
+    !heroImage ||
+    !sources ||
+    !book ||
+    !relatedArticles ||
+    !body ||
+    !validationField
+  ) {
     renderSidebarSetupError(
       'The Article content model is missing fields required by Publishing checks.',
     );
@@ -122,18 +235,36 @@ function setupSidebar(sdk: SidebarAppSDK): void {
   let refreshNumber = 0;
   let timer: number | undefined;
   let latestChecks: PublishingCheck[] = [];
+  let bodyReferenceSignature = JSON.stringify(
+    richTextEntryLinks(body.getValue(sdk.locales.default)).map((link) => link.sys.id),
+  );
 
   const refresh = async (): Promise<void> => {
     const thisRefresh = ++refreshNumber;
     renderChecks(latestChecks, true);
 
+    const statusCache = new Map<string, Promise<LinkedEntryStatus>>();
+    const resolveStatus = (entryId: string): Promise<LinkedEntryStatus> => {
+      const cached = statusCache.get(entryId);
+      if (cached) return cached;
+      const pending = linkedEntryStatus(sdk, entryId);
+      statusCache.set(entryId, pending);
+      return pending;
+    };
+
     const checks = await evaluatePublishingChecks(
       {
         storyLabel: storyLabel.getValue(sdk.locales.default),
+        authors: authors.getValue(sdk.locales.default),
+        primaryCategory: primaryCategory.getValue(sdk.locales.default),
+        topics: topics.getValue(sdk.locales.default),
         heroImage: heroImage.getValue(sdk.locales.default),
+        sources: sources.getValue(sdk.locales.default),
         book: book.getValue(sdk.locales.default),
+        relatedArticles: relatedArticles.getValue(sdk.locales.default),
+        bodyReferences: richTextEntryLinks(body.getValue(sdk.locales.default)),
       },
-      (entryId) => linkedEntryStatus(sdk, entryId),
+      resolveStatus,
     );
 
     if (thisRefresh !== refreshNumber) return;
@@ -165,10 +296,25 @@ function setupSidebar(sdk: SidebarAppSDK): void {
     timer = window.setTimeout(() => void refresh(), 120);
   };
 
+  const queueRefreshWhenBodyLinksChange = (): void => {
+    const nextSignature = JSON.stringify(
+      richTextEntryLinks(body.getValue(sdk.locales.default)).map((link) => link.sys.id),
+    );
+    if (nextSignature === bodyReferenceSignature) return;
+    bodyReferenceSignature = nextSignature;
+    queueRefresh();
+  };
+
   const unsubscribe = [
     storyLabel.onValueChanged(sdk.locales.default, queueRefresh),
+    authors.onValueChanged(sdk.locales.default, queueRefresh),
+    primaryCategory.onValueChanged(sdk.locales.default, queueRefresh),
+    topics.onValueChanged(sdk.locales.default, queueRefresh),
     heroImage.onValueChanged(sdk.locales.default, queueRefresh),
+    sources.onValueChanged(sdk.locales.default, queueRefresh),
     book.onValueChanged(sdk.locales.default, queueRefresh),
+    relatedArticles.onValueChanged(sdk.locales.default, queueRefresh),
+    body.onValueChanged(sdk.locales.default, queueRefreshWhenBodyLinksChange),
   ];
   window.addEventListener('focus', queueRefresh);
   window.addEventListener(
@@ -179,6 +325,7 @@ function setupSidebar(sdk: SidebarAppSDK): void {
     },
     { once: true },
   );
+  void refresh();
 }
 
 async function setupConfiguration(sdk: ConfigAppSDK): Promise<void> {
@@ -194,8 +341,8 @@ async function setupConfiguration(sdk: ConfigAppSDK): Promise<void> {
     <section class="configuration" aria-labelledby="configuration-title">
       <h1 class="title" id="configuration-title">Publishing checks</h1>
       <p class="configuration-copy">
-        Adds a live checklist to the Article sidebar. Contentful will block publishing when a
-        required hero image is missing or an attached Book entry is unpublished.
+        Adds a live checklist to the Article sidebar. Contentful will block publishing when
+        required or selected linked content is missing or unpublished.
       </p>
       <p class="configuration-status" data-state="${modelReady ? 'pass' : 'fail'}">
         ${modelReady ? 'Article content model is ready.' : 'Article content model migration required.'}
@@ -239,8 +386,8 @@ function renderLocalPreview(preview: string): void {
       <section class="configuration" aria-labelledby="configuration-title">
         <h1 class="title" id="configuration-title">Publishing checks</h1>
         <p class="configuration-copy">
-          Adds a live checklist to the Article sidebar. Contentful will block publishing when a
-          required hero image is missing or an attached Book entry is unpublished.
+          Adds a live checklist to the Article sidebar. Contentful will block publishing when
+          required or selected linked content is missing or unpublished.
         </p>
         <p class="configuration-status" data-state="pass">Article content model is ready.</p>
         <p class="configuration-note">
@@ -260,12 +407,36 @@ function renderLocalPreview(preview: string): void {
       state: 'pass',
     },
     {
+      id: 'authors',
+      label: 'Authors',
+      detail: '1 author selected and published.',
+      state: 'pass',
+    },
+    {
+      id: 'category',
+      label: 'Category',
+      detail: '1 category selected and published.',
+      state: 'pass',
+    },
+    {
+      id: 'topics',
+      label: 'Topics',
+      detail: '1 topic selected and published.',
+      state: 'pass',
+    },
+    {
       id: 'hero-image',
       label: 'Hero image',
       detail: ready
-        ? 'Hero image is selected and published.'
-        : 'Publish the selected hero image before publishing this article.',
+        ? '1 hero image selected and published.'
+        : '1 hero image is still in draft. Publish before publishing this article.',
       state: ready ? 'pass' : 'fail',
+    },
+    {
+      id: 'sources',
+      label: 'Sources',
+      detail: 'No sources attached.',
+      state: 'not-applicable',
     },
     {
       id: 'book',
@@ -274,6 +445,18 @@ function renderLocalPreview(preview: string): void {
         ? 'Book is selected and published.'
         : 'Optional. Add a Book when this Review is about a book.',
       state: ready ? 'pass' : 'not-applicable',
+    },
+    {
+      id: 'related-articles',
+      label: 'Related articles',
+      detail: 'No related articles attached.',
+      state: 'not-applicable',
+    },
+    {
+      id: 'body-references',
+      label: 'Body links',
+      detail: 'No linked entries in the story body.',
+      state: 'not-applicable',
     },
   ]);
   app.querySelector<HTMLButtonElement>('.action')?.addEventListener('click', () => {

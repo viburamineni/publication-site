@@ -3,10 +3,18 @@
 This editor-only app adds a live checklist to the Article sidebar. It does not run on the public
 site and does not use Contentful Functions.
 
-The app checks the conditional rules that Contentful's built-in field validations cannot express:
+The app checks publication readiness that Contentful's built-in field validations cannot express:
 
 - every Article except a Brief needs a published Hero Image entry;
-- a Book is optional for Reviews, but any attached Book entry must be published.
+- the selected Authors and main Category must be published;
+- selected Topics, Sources, Book, Related Articles, and Rich Text entry links must be published;
+- selected Image entries and their assets must be published; and
+- selected Author photographs, Category and Topic images, Book covers, Topic article links, and
+  Related Articles block links must resolve to published content.
+
+Category and Topic names are intentionally not hardcoded. Editors can rename or replace taxonomy
+entries without rebuilding the app. The app checks that the selected entries are publishable, not
+whether an editorial classification choice is subjectively correct.
 
 The app writes `ready` to the disabled, required `publishingChecks` field only while those checks
 pass. Contentful's normal publish validation blocks the Article when that field is empty. The

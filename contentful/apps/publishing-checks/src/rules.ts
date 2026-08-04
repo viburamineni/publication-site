@@ -15,7 +15,17 @@ export interface EntryLink {
 }
 
 export interface PublishingCheck {
-  id: 'story-label' | 'hero-image' | 'book' | 'contentful-validation';
+  id:
+    | 'story-label'
+    | 'authors'
+    | 'category'
+    | 'topics'
+    | 'hero-image'
+    | 'sources'
+    | 'book'
+    | 'related-articles'
+    | 'body-references'
+    | 'contentful-validation';
   label: string;
   detail: string;
   state: CheckState;
@@ -23,12 +33,36 @@ export interface PublishingCheck {
 
 export interface PublishingCheckInput {
   storyLabel: unknown;
+  authors: unknown;
+  primaryCategory: unknown;
+  topics: unknown;
   heroImage: unknown;
+  sources: unknown;
   book: unknown;
+  relatedArticles: unknown;
+  bodyReferences: unknown;
 }
 
-export type LinkedEntryStatus = 'published' | 'draft' | 'missing' | 'unavailable';
+export type LinkedEntryStatus =
+  | 'published'
+  | 'draft'
+  | 'missing'
+  | 'unavailable'
+  | 'dependency-draft'
+  | 'dependency-missing'
+  | 'dependency-unavailable';
 export type ResolveLinkedEntryStatus = (entryId: string) => Promise<LinkedEntryStatus>;
+
+interface ReferenceCheckOptions {
+  id: PublishingCheck['id'];
+  label: string;
+  singular: string;
+  plural: string;
+  value: unknown;
+  required: boolean;
+  resolveLinkedEntryStatus: ResolveLinkedEntryStatus;
+  emptyDetail?: string;
+}
 
 function storyLabelFrom(value: unknown): StoryLabel | undefined {
   try {
@@ -44,40 +78,65 @@ function entryIdFrom(value: unknown): string | undefined {
   return typeof id === 'string' && id.length > 0 ? id : undefined;
 }
 
-async function checkRequiredEntry(
-  id: PublishingCheck['id'],
-  label: string,
-  value: unknown,
-  resolveLinkedEntryStatus: ResolveLinkedEntryStatus,
-): Promise<PublishingCheck> {
-  const entryId = entryIdFrom(value);
-  if (!entryId) {
+function entryIdsFrom(value: unknown): string[] {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return [...new Set(values.map(entryIdFrom).filter((id): id is string => Boolean(id)))];
+}
+
+function countLabel(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function failureDetail(statuses: LinkedEntryStatus[], singular: string, plural: string): string {
+  const count = statuses.length;
+  const subject = countLabel(count, singular, plural);
+  if (statuses.some((status) => status === 'draft')) {
+    return `${subject} ${count === 1 ? 'is' : 'are'} still in draft. Publish before publishing this article.`;
+  }
+  if (statuses.some((status) => status === 'missing')) {
+    return `${subject} could not be found. Remove or replace the missing selection before publishing.`;
+  }
+  if (statuses.some((status) => status === 'dependency-draft')) {
+    return `${subject} ${count === 1 ? 'has' : 'have'} an unpublished linked entry or asset. Publish it before publishing this article.`;
+  }
+  if (statuses.some((status) => status === 'dependency-missing')) {
+    return `${subject} ${count === 1 ? 'has' : 'have'} a missing linked entry or asset. Repair the selection before publishing.`;
+  }
+  return `${subject} could not be completely verified. Check again before publishing.`;
+}
+
+async function checkReferences(options: ReferenceCheckOptions): Promise<PublishingCheck> {
+  const entryIds = entryIdsFrom(options.value);
+  if (entryIds.length === 0) {
     return {
-      id,
-      label,
-      detail: `Choose a ${label.toLocaleLowerCase('en-US')} before publishing.`,
+      id: options.id,
+      label: options.label,
+      detail:
+        options.emptyDetail ??
+        (options.required
+          ? `Choose ${options.singular === 'author' ? 'an' : 'a'} ${options.singular} before publishing.`
+          : `No ${options.plural} attached.`),
+      state: options.required ? 'fail' : 'not-applicable',
+    };
+  }
+
+  const statuses = await Promise.all(entryIds.map(options.resolveLinkedEntryStatus));
+  const failures = statuses.filter((status) => status !== 'published');
+  if (failures.length > 0) {
+    return {
+      id: options.id,
+      label: options.label,
+      detail: failureDetail(failures, options.singular, options.plural),
       state: 'fail',
     };
   }
 
-  const status = await resolveLinkedEntryStatus(entryId);
-  if (status === 'published') {
-    return {
-      id,
-      label,
-      detail: `${label} is selected and published.`,
-      state: 'pass',
-    };
-  }
-
-  const detail =
-    status === 'draft'
-      ? `Publish the selected ${label.toLocaleLowerCase('en-US')} before publishing this article.`
-      : status === 'missing'
-        ? `The selected ${label.toLocaleLowerCase('en-US')} could not be found. Choose another one.`
-        : `The selected ${label.toLocaleLowerCase('en-US')} could not be verified. Check again.`;
-
-  return { id, label, detail, state: 'fail' };
+  return {
+    id: options.id,
+    label: options.label,
+    detail: `${countLabel(entryIds.length, options.singular, options.plural)} selected and published.`,
+    state: 'pass',
+  };
 }
 
 export async function evaluatePublishingChecks(
@@ -85,69 +144,123 @@ export async function evaluatePublishingChecks(
   resolveLinkedEntryStatus: ResolveLinkedEntryStatus,
 ): Promise<PublishingCheck[]> {
   const storyLabel = storyLabelFrom(input.storyLabel);
-  if (!storyLabel) {
-    return [
-      {
-        id: 'story-label',
-        label: 'Story label',
-        detail: 'Choose a valid story label before publishing.',
-        state: 'fail',
-      },
-      {
-        id: 'hero-image',
-        label: 'Hero image',
-        detail: 'The requirement depends on the story label.',
-        state: 'not-applicable',
-      },
-      {
-        id: 'book',
-        label: 'Book',
-        detail: 'The requirement depends on the story label.',
-        state: 'not-applicable',
-      },
-    ];
-  }
-
-  const requirements = conditionalRequirementsForArticle(storyLabel);
   const checks: PublishingCheck[] = [
-    {
-      id: 'story-label',
-      label: 'Story label',
-      detail: `${storyLabel} selected.`,
-      state: 'pass',
-    },
+    storyLabel
+      ? {
+          id: 'story-label',
+          label: 'Story label',
+          detail: `${storyLabel} selected.`,
+          state: 'pass',
+        }
+      : {
+          id: 'story-label',
+          label: 'Story label',
+          detail: 'Choose a valid story label before publishing.',
+          state: 'fail',
+        },
   ];
 
   checks.push(
-    requirements.heroImage
-      ? await checkRequiredEntry(
-          'hero-image',
-          'Hero image',
-          input.heroImage,
-          resolveLinkedEntryStatus,
-        )
-      : {
-          id: 'hero-image',
-          label: 'Hero image',
-          detail: 'Not required for a Brief.',
-          state: 'not-applicable',
-        },
+    await checkReferences({
+      id: 'authors',
+      label: 'Authors',
+      singular: 'author',
+      plural: 'authors',
+      value: input.authors,
+      required: true,
+      resolveLinkedEntryStatus,
+    }),
+    await checkReferences({
+      id: 'category',
+      label: 'Category',
+      singular: 'category',
+      plural: 'categories',
+      value: input.primaryCategory,
+      required: true,
+      resolveLinkedEntryStatus,
+    }),
+    await checkReferences({
+      id: 'topics',
+      label: 'Topics',
+      singular: 'topic',
+      plural: 'topics',
+      value: input.topics,
+      required: false,
+      resolveLinkedEntryStatus,
+    }),
   );
 
-  const selectedBookId = entryIdFrom(input.book);
-  if (selectedBookId) {
-    checks.push(await checkRequiredEntry('book', 'Book', input.book, resolveLinkedEntryStatus));
+  if (!storyLabel) {
+    checks.push({
+      id: 'hero-image',
+      label: 'Hero image',
+      detail: 'The requirement depends on the story label.',
+      state: 'not-applicable',
+    });
+  } else if (conditionalRequirementsForArticle(storyLabel).heroImage) {
+    checks.push(
+      await checkReferences({
+        id: 'hero-image',
+        label: 'Hero image',
+        singular: 'hero image',
+        plural: 'hero images',
+        value: input.heroImage,
+        required: true,
+        resolveLinkedEntryStatus,
+      }),
+    );
   } else {
     checks.push({
-      id: 'book',
-      label: 'Book',
-      detail:
-        storyLabel === 'Review'
-          ? 'Optional. Add a Book when this Review is about a book.'
-          : 'Not attached.',
+      id: 'hero-image',
+      label: 'Hero image',
+      detail: 'Not required for a Brief.',
       state: 'not-applicable',
     });
   }
+
+  checks.push(
+    await checkReferences({
+      id: 'sources',
+      label: 'Sources',
+      singular: 'source',
+      plural: 'sources',
+      value: input.sources,
+      required: false,
+      resolveLinkedEntryStatus,
+    }),
+    await checkReferences({
+      id: 'book',
+      label: 'Book',
+      singular: 'book',
+      plural: 'books',
+      value: input.book,
+      required: false,
+      emptyDetail:
+        storyLabel === 'Review'
+          ? 'Optional. Add a Book when this Review is about a book.'
+          : 'No Book attached.',
+      resolveLinkedEntryStatus,
+    }),
+    await checkReferences({
+      id: 'related-articles',
+      label: 'Related articles',
+      singular: 'related article',
+      plural: 'related articles',
+      value: input.relatedArticles,
+      required: false,
+      resolveLinkedEntryStatus,
+    }),
+    await checkReferences({
+      id: 'body-references',
+      label: 'Body links',
+      singular: 'linked entry',
+      plural: 'linked entries',
+      value: input.bodyReferences,
+      required: false,
+      emptyDetail: 'No linked entries in the story body.',
+      resolveLinkedEntryStatus,
+    }),
+  );
 
   return checks;
 }

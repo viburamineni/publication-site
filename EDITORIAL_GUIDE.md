@@ -56,8 +56,9 @@ Categories. Story Labels remain a separate editorial choice and do not alter thi
 5. In Body, use paragraphs, H2/H3, links, lists, or blockquotes. To add a Pull Quote or Fact Box, use **Embed > Entry**, create or select the corresponding type, then insert it.
 6. Use **Analysis** for evidence-led explanation, **Opinion** for an argued position, and **Review** for criticism of a book, performance, exhibition, or other work. A Book entry is optional; attach it only when the Review is about a book.
 7. Review **Publishing checks** in the sidebar. Every item must pass before Contentful will publish
-   the Article. A Brief may omit its Hero Image; every other Story Label needs a published Hero
-   Image. If a Book is attached, that Book entry must also be published.
+   the Article. The checklist verifies the Hero Image rule and confirms that selected Authors,
+   Category, Topics, Sources, Book, Related Articles, Body links, images, and assets are published.
+   It does not judge which Category or Topic is editorially appropriate.
 8. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
 9. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
 10. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.

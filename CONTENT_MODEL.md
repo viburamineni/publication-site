@@ -29,11 +29,12 @@ Standard story is the default and is not printed as a reader-facing label. The m
 and Long Form to Standard story, News Brief to Brief, and Book Review to Review without changing an
 entry's draft or published state.
 
-The Article sidebar app enforces conditional editor rules that the Contentful model cannot express:
-all Story Labels except Brief require a published Hero Image entry. Book is optional, including for
-Reviews; when an editor attaches one, that Book entry must be published. The technical
-`publishingChecks` field is required but omitted from delivery responses, so it does not enter the
-frontend normalizer or public output. Zod validation repeats the Hero Image requirement at build
-time, while normal publication-reference validation rejects unresolved attached Books.
+The Article sidebar app enforces publication-readiness rules that the Contentful model cannot
+express. All Story Labels except Brief require a published Hero Image entry. Authors and the main
+Category must be published. Any selected Topics, Sources, Book, Related Articles, Rich Text entry
+links, and their known image, asset, and article dependencies must also be published. Category and
+Topic names remain dynamic and are not hardcoded into the app. The technical `publishingChecks`
+field is required but omitted from delivery responses, so it does not enter the frontend normalizer
+or public output. Zod and reference validation remain the final build-time safety net.
 
 Any field/model change requires a new migration, schema/normalizer update, tests, this document, and an exported model snapshot.

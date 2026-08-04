@@ -64,6 +64,13 @@ test('homepage editorial order and optional notice are intentional', async ({ pa
   await expect(page.getByRole('link', { name: /more on world events/i })).toBeVisible();
 });
 
+test('curated homepage stories use the Editor’s picks heading', async () => {
+  const homepageSource = await readFile(path.resolve('src', 'pages', 'index.astro'), 'utf8');
+
+  expect(homepageSource).toContain('Editor’s picks');
+  expect(homepageSource).not.toContain('The wider edition');
+});
+
 test('topic pages speak to readers without explaining the publishing system', async ({ page }) => {
   await page.goto('/topics/');
   await expect(

@@ -16,6 +16,12 @@ if (!token || !spaceId) {
 const client = createClient({ accessToken: token }, { type: 'legacy' });
 const space = await client.getSpace(spaceId);
 const environment = await space.getEnvironment(environmentId);
+const defaultSocialImage = fixturePublication.settings.defaultSocialImage;
+
+if (!defaultSocialImage) {
+  throw new Error('The publication fixture requires a default social image.');
+}
+const defaultSocialImageId = defaultSocialImage.id;
 
 const localized = <T>(value: T): Record<string, T> => ({ [locale]: value });
 const entryLink = (id: string) => ({ sys: { type: 'Link', linkType: 'Entry', id } });
@@ -238,7 +244,7 @@ async function seed(publishArticles: boolean) {
       tagline: fixturePublication.settings.tagline,
       description: fixturePublication.settings.description,
       textLogo: fixturePublication.settings.textLogo,
-      defaultSocialImage: entryLink(fixturePublication.settings.defaultSocialImage.id),
+      defaultSocialImage: entryLink(defaultSocialImageId),
       navigationCategories: [],
       footerSections: fixturePublication.settings.footerSections,
       contactLinks: fixturePublication.settings.contactLinks,

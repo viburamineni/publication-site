@@ -244,9 +244,14 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
   }
 
   const orderedArticles = sortArticles(articles);
-  const homepageEntry = (byType.get('homepage') ?? [])[0];
+  const homepageEntries = byType.get('homepage') ?? [];
+  if (homepageEntries.length > 1) {
+    throw new Error(`Expected at most one Homepage entry, found ${homepageEntries.length}.`);
+  }
+  const homepageEntry = homepageEntries[0];
   const homepageFields = homepageEntry ? fields(homepageEntry) : {};
   const homepage = {
+    curated: Boolean(homepageEntry),
     ...(homepageFields.leadArticle
       ? {
           leadArticleId: referenceId(
@@ -255,16 +260,14 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
             'leadArticle',
           ),
         }
-      : orderedArticles[0]
-        ? { leadArticleId: orderedArticles[0].id }
-        : {}),
+      : {}),
     secondaryLeadArticleIds: homepageEntry
       ? referenceIds(
           homepageFields.secondaryLeadArticles,
           homepageEntry.sys.id,
           'secondaryLeadArticles',
         )
-      : orderedArticles.slice(1, 3).map((article) => article.id),
+      : [],
     breakingArticleIds: homepageEntry
       ? referenceIds(
           homepageFields.breakingNewsArticles,

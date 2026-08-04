@@ -27,6 +27,16 @@ describe('publication validation', () => {
     expect(publicationSchema.safeParse(publication).success).toBe(false);
   });
 
+  it('rejects missing Homepage article and topic references', () => {
+    const missingArticle = copyFixture();
+    missingArticle.homepage.leadArticleId = 'missing-homepage-article';
+    expect(publicationSchema.safeParse(missingArticle).success).toBe(false);
+
+    const missingTopic = copyFixture();
+    missingTopic.homepage.featuredTopicId = 'missing-homepage-topic';
+    expect(publicationSchema.safeParse(missingTopic).success).toBe(false);
+  });
+
   it('rejects redirect syntax in previous article slugs', () => {
     const article = copyFixture().articles[0]!;
     expect(

@@ -64,10 +64,14 @@ test('homepage editorial order and optional notice are intentional', async ({ pa
   await expect(page.getByRole('link', { name: /more on world events/i })).toBeVisible();
 });
 
-test('curated homepage stories use the Editor’s picks heading', async () => {
+test('homepage curation uses Editor’s picks while Latest stays automatic', async () => {
   const homepageSource = await readFile(path.resolve('src', 'pages', 'index.astro'), 'utf8');
 
+  expect(homepageSource).toContain('selectHomepageContent');
   expect(homepageSource).toContain('Editor’s picks');
+  expect(homepageSource).toContain(
+    'const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 5)',
+  );
   expect(homepageSource).not.toContain('The wider edition');
 });
 

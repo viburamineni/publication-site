@@ -137,6 +137,7 @@ export const articleSchema = z
   });
 
 export const homepageSchema = z.object({
+  curated: z.boolean().default(false),
   leadArticleId: z.string().optional(),
   secondaryLeadArticleIds: z.array(z.string()).default([]),
   breakingArticleIds: z.array(z.string()).default([]),
@@ -210,6 +211,34 @@ export const publicationSchema = z
     const articleIds = new Set(publication.articles.map((article) => article.id));
     const sourceIds = new Set(publication.sources.map((source) => source.id));
     const bookIds = new Set(publication.books.map((book) => book.id));
+
+    const homepageArticleReferences = [
+      ...(publication.homepage.leadArticleId ? [publication.homepage.leadArticleId] : []),
+      ...publication.homepage.secondaryLeadArticleIds,
+      ...publication.homepage.breakingArticleIds,
+      ...publication.homepage.featuredAnalysisIds,
+      ...publication.homepage.featuredOpinionIds,
+      ...publication.homepage.featuredReviewIds,
+    ];
+    for (const articleId of homepageArticleReferences) {
+      if (!articleIds.has(articleId)) {
+        context.addIssue({
+          code: 'custom',
+          message: `Homepage references missing article ${articleId}.`,
+          path: ['homepage'],
+        });
+      }
+    }
+    if (
+      publication.homepage.featuredTopicId &&
+      !topicIds.has(publication.homepage.featuredTopicId)
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: `Homepage references missing topic ${publication.homepage.featuredTopicId}.`,
+        path: ['homepage'],
+      });
+    }
 
     for (const article of publication.articles) {
       for (const authorId of article.authorIds) {

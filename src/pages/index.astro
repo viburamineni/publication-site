@@ -6,20 +6,22 @@ import AuthorLinks from '../components/cards/AuthorLinks.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import { publication, indexes } from '../contentful/data';
 import { displayStoryLabel, distinctCategoryLabel, publishedArticles } from '../utilities/content';
+import { selectHomepageContent } from '../utilities/homepage';
 
 const articles = publishedArticles(publication);
-const chosenLead = publication.homepage.leadArticleId
-  ? indexes.articles.get(publication.homepage.leadArticleId)
+const homepageSelection = selectHomepageContent(publication.homepage, articles, publication.topics);
+const chosenLead = homepageSelection.leadArticleId
+  ? indexes.articles.get(homepageSelection.leadArticleId)
   : undefined;
 const lead = chosenLead ?? articles[0];
-const secondary = publication.homepage.secondaryLeadArticleIds
+const secondary = homepageSelection.editorPickIds
   .map((id) => indexes.articles.get(id))
   .filter((article) => article !== undefined)
   .slice(0, 3);
 const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 5);
-const featuredTopic = publication.homepage.featuredTopicId
-  ? indexes.topics.get(publication.homepage.featuredTopicId)
-  : publication.topics.find((topic) => topic.featured);
+const featuredTopic = homepageSelection.featuredTopicId
+  ? indexes.topics.get(homepageSelection.featuredTopicId)
+  : undefined;
 const leadAuthors = lead
   ? lead.authorIds.map((id) => indexes.authors.get(id)).filter((author) => author !== undefined)
   : [];
@@ -33,19 +35,24 @@ const sections = [
   {
     title: 'Analysis',
     description: 'Evidence, context, and the forces underneath the day’s events.',
-    articles: articles.filter((article) => article.storyLabel === 'Analysis').slice(0, 3),
+    articleIds: homepageSelection.analysisIds,
   },
   {
     title: 'Opinion',
     description: 'Columns and arguments from staff and guest writers.',
-    articles: articles.filter((article) => article.storyLabel === 'Opinion').slice(0, 3),
+    articleIds: homepageSelection.opinionIds,
   },
   {
     title: 'Books',
     description: 'Reviews and criticism that treat books as part of public life.',
-    articles: articles.filter((article) => article.storyLabel === 'Review').slice(0, 3),
+    articleIds: homepageSelection.reviewIds,
   },
-];
+].map((section) => ({
+  ...section,
+  articles: section.articleIds
+    .map((id) => indexes.articles.get(id))
+    .filter((article) => article !== undefined),
+}));
 ---
 
 <BaseLayout announcement={publication.homepage.announcement}>

@@ -9,14 +9,23 @@ The site updates itself from editorial entries:
 
 - Published Categories marked **Show in navigation** appear in the menu, ordered by their
   **Display order** value.
-- The newest published Article becomes the homepage lead when no optional Homepage override is
-  published.
-- Other recent Articles populate the latest and secondary positions.
+- When no Homepage entry is published, the newest published Article marked **Featured** becomes
+  the homepage lead. If no Article is marked Featured, the newest published Article is used.
+- Other recent Articles populate **Editor’s picks**. **Latest** always remains automatic and
+  chronological.
 - Analysis, Opinion, and Review stories populate their matching homepage sections.
 - A published Topic marked **Featured** can populate the homepage topic position.
 
-The Homepage entry is an optional advanced override. Leave it as a draft unless an editor
-deliberately needs to curate a special edition or announcement.
+Publishing the single Homepage entry switches the front page into manual curation. Its fields
+control the featured Article, Editor’s picks, the Analysis, Opinion, and Books sections, the
+featured Topic, and the optional announcement. The order selected in each field is the order shown
+on the site. Leaving an optional list or Topic empty hides that block. Leaving **Lead article** empty
+safely falls back to the Article Featured toggle and then the newest published Article.
+**Latest is never manually curated.**
+
+Keep the Homepage entry published when editors want these controls available. Edit and republish
+that one entry whenever the front-page selection changes. If it is unpublished, the automatic
+rules above take over again.
 
 ## Configured publication structure
 
@@ -62,6 +71,22 @@ Categories. Story Labels remain a separate editorial choice and do not alter thi
 8. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
 9. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
 10. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.
+
+## Curate the homepage
+
+1. Open the single **Homepage** entry. Do not create a second one.
+2. Choose one **Lead article** for the main featured position. If it is empty, the newest published
+   Article marked **Featured** is used; if none are marked, the newest published Article is used.
+3. Choose and order up to three **Secondary lead articles** for **Editor’s picks**.
+4. Choose and order the Articles for **Featured analysis**, **Featured opinions**, and
+   **Featured reviews**. Empty lists remove those sections from the homepage.
+5. Choose a **Featured topic**, or leave it empty to remove the Topic block.
+6. Use **Optional announcement strip** only for a short reader-facing notice.
+7. Publish or republish Homepage. **Latest** continues to update automatically from publication
+   dates and does not need editing.
+
+The legacy **Breaking-news articles** and **Category display order** fields do not control the
+current front page. Navigation order belongs on each Category through **Display order**.
 
 Readers never see the label **Standard story**. Brief, Analysis, Opinion, and Review appear only as
 plain editorial labels where useful, alongside the independently editable Category. A Category can

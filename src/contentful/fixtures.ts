@@ -588,6 +588,7 @@ export const fixturePublication: Publication = publicationSchema.parse({
     defaultSocialImage: ferryImage,
   },
   homepage: {
+    curated: false,
     secondaryLeadArticleIds: [],
     breakingArticleIds: [],
     featuredAnalysisIds: [],

@@ -238,7 +238,7 @@ async function seed(publishArticles: boolean) {
       tagline: fixturePublication.settings.tagline,
       description: fixturePublication.settings.description,
       textLogo: fixturePublication.settings.textLogo,
-      defaultSocialImage: entryLink('image-harbor'),
+      defaultSocialImage: entryLink(fixturePublication.settings.defaultSocialImage.id),
       navigationCategories: [],
       footerSections: fixturePublication.settings.footerSections,
       contactLinks: fixturePublication.settings.contactLinks,

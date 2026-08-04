@@ -36,6 +36,7 @@ async function fetchAllEntries(): Promise<Entry<EntrySkeletonType, undefined, st
     const response = await client.getEntries<EntrySkeletonType>({
       include: 10,
       limit,
+      order: ['sys.createdAt'],
       skip,
     });
     entries.push(...response.items);

@@ -454,6 +454,21 @@ input {
   white-space: nowrap;
 }
 
+.section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  align-items: baseline;
+}
+
+.section-archive-link {
+  color: var(--utility-link);
+  font-family: var(--utility);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .section-intro p {
   justify-self: end;
   max-width: 40rem;

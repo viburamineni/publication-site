@@ -64,6 +64,19 @@ test('homepage editorial order and optional notice are intentional', async ({ pa
   await expect(page.getByRole('link', { name: /more on world events/i })).toBeVisible();
 });
 
+test('homepage editorial sections link to complete archives and stay concise', async ({ page }) => {
+  await page.goto('/');
+
+  for (const sectionName of ['Analysis', 'Opinion', 'Books']) {
+    const section = page.getByRole('region', { name: sectionName, exact: true });
+    await expect(section).toBeVisible();
+    await expect(
+      section.getByRole('link', { name: `All ${sectionName}`, exact: true }),
+    ).toHaveAttribute('href', `/${sectionName.toLowerCase()}/`);
+    expect(await section.locator('.story-card').count()).toBeLessThanOrEqual(3);
+  }
+});
+
 test('homepage curation uses Editor’s picks while Latest stays automatic', async () => {
   const homepageSource = await readFile(path.resolve('src', 'pages', 'index.astro'), 'utf8');
 

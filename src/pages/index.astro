@@ -34,16 +34,19 @@ const leadCategoryLabel = lead
 const sections = [
   {
     title: 'Analysis',
+    slug: 'analysis',
     description: 'Evidence, context, and the forces underneath the day’s events.',
     articleIds: homepageSelection.analysisIds,
   },
   {
     title: 'Opinion',
+    slug: 'opinion',
     description: 'Columns and arguments from staff and guest writers.',
     articleIds: homepageSelection.opinionIds,
   },
   {
     title: 'Books',
+    slug: 'books',
     description: 'Reviews and criticism that treat books as part of public life.',
     articleIds: homepageSelection.reviewIds,
   },
@@ -155,10 +158,17 @@ const sections = [
     sections.map(
       (section) =>
         section.articles.length > 0 && (
-          <section class="section-band">
+          <section class="section-band" aria-labelledby={`${section.slug}-section-heading`}>
             <div class="page-shell">
               <div class="section-intro">
-                <h2 class="section-title">{section.title}</h2>
+                <div class="section-heading">
+                  <h2 class="section-title" id={`${section.slug}-section-heading`}>
+                    {section.title}
+                  </h2>
+                  <a class="section-archive-link" href={`/${section.slug}/`}>
+                    All {section.title}
+                  </a>
+                </div>
                 <p>{section.description}</p>
               </div>
               <div class="story-grid">

@@ -5,7 +5,7 @@ import StoryCard from '../components/cards/StoryCard.astro';
 import AuthorLinks from '../components/cards/AuthorLinks.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import { publication, indexes } from '../contentful/data';
-import { displayArticleType, distinctCategoryLabel, publishedArticles } from '../utilities/content';
+import { displayStoryLabel, distinctCategoryLabel, publishedArticles } from '../utilities/content';
 
 const articles = publishedArticles(publication);
 const chosenLead = publication.homepage.leadArticleId
@@ -24,25 +24,26 @@ const leadAuthors = lead
   ? lead.authorIds.map((id) => indexes.authors.get(id)).filter((author) => author !== undefined)
   : [];
 const leadCategory = lead ? indexes.categories.get(lead.primaryCategoryId) : undefined;
+const leadStoryLabel = lead ? displayStoryLabel(lead.storyLabel) : undefined;
 const leadCategoryLabel = lead
-  ? distinctCategoryLabel(lead.articleType, leadCategory?.name)
+  ? distinctCategoryLabel(lead.storyLabel, leadCategory?.name)
   : undefined;
 
 const sections = [
   {
     title: 'Analysis',
     description: 'Evidence, context, and the forces underneath the day’s events.',
-    articles: articles.filter((article) => article.articleType === 'Analysis').slice(0, 3),
+    articles: articles.filter((article) => article.storyLabel === 'Analysis').slice(0, 3),
   },
   {
     title: 'Opinion',
     description: 'Arguments from staff and guest writers, clearly separate from news.',
-    articles: articles.filter((article) => article.articleType === 'Opinion').slice(0, 3),
+    articles: articles.filter((article) => article.storyLabel === 'Opinion').slice(0, 3),
   },
   {
     title: 'Books',
     description: 'Reviews and criticism that treat books as part of public life.',
-    articles: articles.filter((article) => article.articleType === 'Book Review').slice(0, 3),
+    articles: articles.filter((article) => article.storyLabel === 'Review').slice(0, 3),
   },
 ];
 ---
@@ -55,10 +56,13 @@ const sections = [
         aria-labelledby="lead-story"
       >
         <div class="lead-copy">
-          <p class="story-kicker">
-            {displayArticleType(lead.articleType)}{' '}
-            {leadCategoryLabel ? `· ${leadCategoryLabel}` : ''}
-          </p>
+          {(leadStoryLabel || leadCategoryLabel) && (
+            <p class="story-kicker">
+              {leadStoryLabel}
+              {leadStoryLabel && leadCategoryLabel ? ' · ' : ''}
+              {leadCategoryLabel}
+            </p>
+          )}
           <h1 class="lead-title" id="lead-story">
             <a href={`/articles/${lead.slug}/`}>{lead.title}</a>
           </h1>
@@ -90,11 +94,12 @@ const sections = [
             <ol class="latest-list">
               {latest.map((article) => {
                 const category = indexes.categories.get(article.primaryCategoryId);
-                const categoryLabel = distinctCategoryLabel(article.articleType, category?.name);
+                const storyLabel = displayStoryLabel(article.storyLabel);
+                const categoryLabel = distinctCategoryLabel(article.storyLabel, category?.name);
                 return (
                   <li class="latest-item">
                     <div class="story-meta">
-                      <span>{displayArticleType(article.articleType)}</span>
+                      {storyLabel && <span>{storyLabel}</span>}
                       {categoryLabel && <span>{categoryLabel}</span>}
                     </div>
                     <h3>

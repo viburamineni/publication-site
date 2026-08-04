@@ -2,7 +2,7 @@
 import type { Article, Author, Category } from '../../contentful/types';
 import AuthorLinks from './AuthorLinks.astro';
 import {
-  displayArticleType,
+  displayStoryLabel,
   distinctCategoryLabel,
   formatPublicationDate,
 } from '../../utilities/content';
@@ -14,12 +14,13 @@ interface Props {
 }
 
 const { article, authors, category } = Astro.props;
-const categoryLabel = distinctCategoryLabel(article.articleType, category?.name);
+const storyLabel = displayStoryLabel(article.storyLabel);
+const categoryLabel = distinctCategoryLabel(article.storyLabel, category?.name);
 ---
 
 <article class="archive-row">
   <div class="story-meta">
-    <span>{displayArticleType(article.articleType)}</span>
+    {storyLabel && <span>{storyLabel}</span>}
     {categoryLabel && <span>{categoryLabel}</span>}
   </div>
   <div>

@@ -5,7 +5,7 @@ import StoryCard from '../../components/cards/StoryCard.astro';
 import AuthorLinks from '../../components/cards/AuthorLinks.astro';
 import { publication, indexes } from '../../contentful/data';
 import {
-  displayArticleType,
+  displayStoryLabel,
   distinctCategoryLabel,
   formatPublicationDate,
   publishedArticles,
@@ -24,7 +24,8 @@ const authors = article.authorIds
   .map((id: string) => indexes.authors.get(id))
   .filter((author) => author !== undefined);
 const category = indexes.categories.get(article.primaryCategoryId);
-const categoryLabel = distinctCategoryLabel(article.articleType, category?.name);
+const storyLabel = displayStoryLabel(article.storyLabel);
+const categoryLabel = distinctCategoryLabel(article.storyLabel, category?.name);
 const topics = article.topicIds
   .map((id: string) => indexes.topics.get(id))
   .filter((topic) => topic !== undefined);
@@ -38,9 +39,9 @@ const book = article.bookId ? indexes.books.get(article.bookId) : undefined;
 const canonical = new URL(`/articles/${article.slug}/`, Astro.site).toString();
 const articleBody = renderRichText(article.body, article.id);
 const schemaType =
-  article.articleType === 'Book Review'
+  article.storyLabel === 'Review'
     ? 'Review'
-    : ['News', 'News Brief'].includes(article.articleType)
+    : ['Standard story', 'Brief'].includes(article.storyLabel)
       ? 'NewsArticle'
       : 'Article';
 const structuredData = [
@@ -112,7 +113,7 @@ const shareText = encodeURIComponent(`${article.title} ${canonical}`);
   <article class="article-shell" data-pagefind-body>
     <header class="page-shell article-header">
       <div class="article-classification">
-        <p data-pagefind-meta="type">{displayArticleType(article.articleType)}</p>
+        {storyLabel && <p data-pagefind-meta="label">{storyLabel}</p>}
         {
           category && categoryLabel && (
             <a data-pagefind-meta="category" href={`/categories/${category.slug}/`}>

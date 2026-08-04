@@ -1,11 +1,11 @@
 ---
 import ArchiveLayout from '../layouts/ArchiveLayout.astro';
 import { publication } from '../contentful/data';
-import { articlesByType } from '../utilities/content';
+import { articlesByLabel } from '../utilities/content';
 ---
 
 <ArchiveLayout
   title="Opinion"
   description="Arguments from staff and guest contributors, clearly labeled and separate from news."
-  articles={articlesByType(publication, ['Opinion'])}
+  articles={articlesByLabel(publication, ['Opinion'])}
 />

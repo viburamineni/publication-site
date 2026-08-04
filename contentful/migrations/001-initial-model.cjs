@@ -164,7 +164,7 @@ module.exports = function initialModel(migration) {
   const book = migration
     .createContentType('book')
     .name('Book')
-    .description('Book metadata used by a Book Review article.')
+    .description('Optional book metadata for Reviews that are about a book.')
     .displayField('title');
   book.createField('title').name('Title').type('Symbol').required(true);
   book.createField('author').name('Author').type('Symbol').required(true);
@@ -291,19 +291,18 @@ module.exports = function initialModel(migration) {
     .validations([{ size: { min: 30, max: 350 } }]);
   article
     .createField('articleType')
-    .name('Article type')
+    .name('Does this story need a special label?')
     .type('Symbol')
     .required(true)
-    .validations([
-      { in: ['News Brief', 'News', 'Long Form', 'Analysis', 'Opinion', 'Book Review'] },
-    ]);
+    .validations([{ in: ['Standard story', 'Brief', 'Analysis', 'Opinion', 'Review'] }])
+    .defaultValue({ 'en-US': 'Standard story' });
   article
     .createField('authors', entryArray(['author'], { min: 1, max: 3 }))
     .name('Authors')
     .required(true);
   article
     .createField('primaryCategory')
-    .name('Primary category')
+    .name('Where does this story belong?')
     .type('Link')
     .linkType('Entry')
     .required(true)
@@ -407,10 +406,17 @@ module.exports = function initialModel(migration) {
     helpText: '30–350 characters. Summarize the story without repeating the headline.',
   });
   article.changeFieldControl('articleType', 'builtin', 'dropdown', {
-    helpText: 'Analysis explains evidence. Opinion argues a position.',
+    helpText:
+      'Most stories should use Standard story. Choose a label only for a brief update, analysis, opinion piece, or review.',
+  });
+  article.changeFieldControl('primaryCategory', 'builtin', 'entryLinkEditor', {
+    helpText: 'Choose the main subject or section for this story.',
   });
   article.changeFieldControl('heroImage', 'builtin', 'entryLinkEditor', {
-    helpText: 'Required except for News Brief. Use an Image entry with alt text and credit.',
+    helpText: 'Required except for a Brief. Use an Image entry with alt text and credit.',
+  });
+  article.changeFieldControl('book', 'builtin', 'entryLinkEditor', {
+    helpText: 'Optional. Add a Book only when a Review is about a book.',
   });
   article.changeFieldControl('body', 'builtin', 'richTextEditor', {
     helpText: 'Use H2 and H3 headings. Only approved embedded blocks are available.',
@@ -458,7 +464,7 @@ module.exports = function initialModel(migration) {
     .required(false);
   homepage
     .createField('featuredBookReviews', entryArray(['article'], { max: 4 }))
-    .name('Featured book reviews')
+    .name('Featured reviews')
     .required(false);
   homepage
     .createField('featuredTopic')

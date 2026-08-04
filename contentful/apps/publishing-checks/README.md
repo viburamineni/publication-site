@@ -5,8 +5,8 @@ site and does not use Contentful Functions.
 
 The app checks the conditional rules that Contentful's built-in field validations cannot express:
 
-- every Article except a News Brief needs a published Hero Image entry;
-- every Book Review needs a published Book entry.
+- every Article except a Brief needs a published Hero Image entry;
+- a Book is optional for Reviews, but any attached Book entry must be published.
 
 The app writes `ready` to the disabled, required `publishingChecks` field only while those checks
 pass. Contentful's normal publish validation blocks the Article when that field is empty. The

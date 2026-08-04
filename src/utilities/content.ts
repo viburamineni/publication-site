@@ -21,38 +21,34 @@ export function publishedArticles(publication: Publication): Article[] {
   return sortArticles(publication.articles);
 }
 
-export function articlesByType(
+export function articlesByLabel(
   publication: Publication,
-  types: Article['articleType'][],
+  labels: Article['storyLabel'][],
 ): Article[] {
-  return publishedArticles(publication).filter((article) => types.includes(article.articleType));
+  return publishedArticles(publication).filter((article) => labels.includes(article.storyLabel));
 }
 
 export function distinctCategoryLabel(
-  articleType: string,
+  storyLabel: string,
   categoryName?: string,
 ): string | undefined {
   const label = categoryName?.trim();
-  if (
-    !label ||
-    label.toLocaleLowerCase('en-US') === articleType.trim().toLocaleLowerCase('en-US')
-  ) {
+  if (!label || label.toLocaleLowerCase('en-US') === storyLabel.trim().toLocaleLowerCase('en-US')) {
     return undefined;
   }
   return label;
 }
 
-const articleTypeLabels: Record<Article['articleType'], string> = {
-  'News Brief': 'Brief update',
-  News: 'News report',
-  'Long Form': 'In-depth report',
-  Analysis: 'Explainer',
+const publicStoryLabels: Record<Article['storyLabel'], string | undefined> = {
+  'Standard story': undefined,
+  Brief: 'Brief',
+  Analysis: 'Analysis',
   Opinion: 'Opinion',
-  'Book Review': 'Book review',
+  Review: 'Review',
 };
 
-export function displayArticleType(articleType: Article['articleType']): string {
-  return articleTypeLabels[articleType];
+export function displayStoryLabel(storyLabel: Article['storyLabel']): string | undefined {
+  return publicStoryLabels[storyLabel];
 }
 
 export function estimateReadingMinutes(text: string): number {

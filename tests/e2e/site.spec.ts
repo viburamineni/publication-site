@@ -5,10 +5,10 @@ import path from 'node:path';
 
 const routes = [
   '/',
-  '/articles/harbor-town-tests-quieter-preparation/',
-  '/categories/world/',
+  '/articles/late-ferry-plan-bay-bridge-repair/',
+  '/categories/americas/',
   '/topics/',
-  '/topics/living-with-higher-water/',
+  '/topics/world-events/',
   '/authors/mara-vale/',
   '/staff/',
   '/search/',
@@ -23,15 +23,15 @@ test('core routes render and navigation works', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Topics', exact: true }).first().click();
   await expect(page).toHaveURL(/\/topics\/$/);
-  await expect(page.getByRole('heading', { name: 'Living with higher water' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'World Events' })).toBeVisible();
   await page.goto('/');
   await page.getByRole('link', { name: 'Latest' }).click();
   await expect(page).toHaveURL(/\/latest\/$/);
 });
 
-test('search finds an approved fixture article', async ({ page }) => {
-  await page.goto('/search/?q=harbor');
-  await expect(page.getByRole('link', { name: /harbor town tests/i })).toBeVisible();
+test('search finds a realistic fixture article', async ({ page }) => {
+  await page.goto('/search/?q=ferry');
+  await expect(page.getByRole('link', { name: /late ferry plan/i })).toBeVisible();
 });
 
 test('homepage bylines reveal and open author profiles', async ({ page }) => {
@@ -47,16 +47,53 @@ test('homepage bylines reveal and open author profiles', async ({ page }) => {
 test('homepage editorial order and optional notice are intentional', async ({ page }) => {
   await page.goto('/');
   const primaryLinks = await page.locator('.desktop-nav a').allTextContents();
-  expect(primaryLinks.slice(-3)).toEqual(['Analysis', 'Opinion', 'Books']);
+  expect(primaryLinks).toEqual([
+    'Analysis',
+    'Guest Articles',
+    'Culture and History',
+    'Africa',
+    'Americas',
+    'Asia',
+    'Australia and Oceania',
+    'Europe',
+  ]);
+  await expect(page.getByRole('link', { name: 'The Transoceanic Cable home' })).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Edition notice' })).toHaveCount(0);
   await expect(page.getByText('Topic', { exact: true })).toBeVisible();
 });
 
 test('article related stories use the configured article relationship', async ({ page }) => {
-  await page.goto('/articles/opinion-room-for-unfinished-sentence/');
+  await page.goto('/articles/opinion-ferry-timetable-climate-policy/');
   const related = page.getByRole('region', { name: 'Related stories' });
   await expect(related).toBeVisible();
-  await expect(related.getByRole('link', { name: /fictional budget vote turns/i })).toBeVisible();
+  await expect(related.getByRole('link', { name: /late ferry plan/i })).toBeVisible();
+});
+
+test('Story Labels stay editorially simple in public output', async ({ page }) => {
+  const cases = [
+    ['/articles/late-ferry-plan-bay-bridge-repair/', undefined],
+    ['/articles/broadband-pilot-hillside-neighborhoods/', 'Brief'],
+    ['/articles/one-vote-capital-plan-transit-compact/', 'Analysis'],
+    ['/articles/opinion-ferry-timetable-climate-policy/', 'Opinion'],
+    ['/articles/book-review-sound-between-streets/', 'Review'],
+  ] as const;
+
+  for (const [route, expectedLabel] of cases) {
+    await page.goto(route);
+    const classification = page.locator('.article-classification');
+    await expect(classification).not.toContainText('Standard story');
+    await expect(classification).not.toContainText('News');
+    if (expectedLabel) {
+      await expect(classification.getByText(expectedLabel, { exact: true })).toBeVisible();
+    }
+  }
+
+  await page.goto('/categories/americas/');
+  const archive = page.locator('.archive-list');
+  await expect(archive).toContainText('Inside the volunteer radio network');
+  await expect(archive).toContainText('Broadband pilot reaches');
+  await expect(archive.getByText('Brief', { exact: true })).toBeVisible();
+  await expect(archive).not.toContainText('Standard story');
 });
 
 test('keyboard skip link moves to main content', async ({ page }) => {
@@ -75,9 +112,9 @@ test('mobile navigation is operable', async ({ page, isMobile }) => {
   await toggle.click();
   const navigation = page.getByRole('navigation', { name: 'Mobile primary' });
   await expect(navigation.getByRole('link', { name: 'Topics' })).toBeVisible();
-  await expect(navigation.getByRole('link', { name: 'Analysis' })).toBeVisible();
-  await navigation.getByRole('link', { name: 'Analysis' }).click();
-  await expect(page).toHaveURL(/\/categories\/analysis\/$/);
+  await expect(navigation.getByRole('link', { name: 'Australia and Oceania' })).toBeVisible();
+  await navigation.getByRole('link', { name: 'Australia and Oceania' }).click();
+  await expect(page).toHaveURL(/\/categories\/australia-and-oceania\/$/);
 });
 
 test('RSS, sitemap, and 404 output are available', async ({ page, request }) => {
@@ -108,7 +145,7 @@ test('generated redirects never mask core content routes', async () => {
 
 for (const route of [
   '/',
-  '/articles/harbor-town-tests-quieter-preparation/',
+  '/articles/late-ferry-plan-bay-bridge-repair/',
   '/staff/',
   '/topics/',
   '/search/',

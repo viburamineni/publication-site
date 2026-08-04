@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { createClient } from 'contentful-management';
 import { fixturePublication } from '../src/contentful/fixtures';
@@ -59,32 +59,35 @@ async function publishEntry(entry: Awaited<ReturnType<typeof upsertEntry>>) {
   return entry.publish();
 }
 
-const imageDefinitions = [
-  {
-    id: 'image-harbor',
-    fileName: 'harbor-study.svg',
-    alt: 'Abstract illustration of a harbor, cranes, and tide gauges',
-    caption: 'A demonstration study of a working harbor. This article is fictional.',
-  },
-  {
-    id: 'image-civic',
-    fileName: 'civic-study.svg',
-    alt: 'Abstract illustration of a circular public chamber',
-    caption: 'A demonstration study of a public assembly. This article is fictional.',
-  },
-  {
-    id: 'image-network',
-    fileName: 'network-study.svg',
-    alt: 'Abstract illustration of switching nodes connected by cables',
-    caption: 'A demonstration study of a regional network. This article is fictional.',
-  },
-  {
-    id: 'image-book',
-    fileName: 'book-study.svg',
-    alt: 'Abstract illustration of an open book',
-    caption: 'A demonstration study for a fictional book review.',
-  },
-];
+const allImages = [
+  fixturePublication.settings.defaultSocialImage,
+  ...fixturePublication.articles.map((article) => article.heroImage),
+  ...fixturePublication.authors.map((author) => author.photo),
+  ...fixturePublication.categories.map((category) => category.headerImage),
+  ...fixturePublication.topics.map((topic) => topic.heroImage),
+  ...fixturePublication.books.map((book) => book.coverImage),
+].filter((image) => image !== undefined);
+
+const imageDefinitions = Array.from(
+  new Map(
+    allImages.map((image) => {
+      const source = image.sources[0]!;
+      return [
+        image.id,
+        {
+          id: image.id,
+          fileName: path.basename(source.src),
+          alt: image.alt,
+          caption: image.caption,
+          credit: image.credit,
+          rightsNote: image.rightsNote,
+          focalPoint: image.focalPoint,
+          contentType: source.type,
+        },
+      ];
+    }),
+  ).values(),
+);
 
 async function ensureImage(definition: (typeof imageDefinitions)[number]) {
   const existing = await getEntry(definition.id);
@@ -92,15 +95,17 @@ async function ensureImage(definition: (typeof imageDefinitions)[number]) {
     return publishEntry(existing);
   }
 
-  const file = await readFile(path.resolve(process.cwd(), 'public', 'demo', definition.fileName));
+  const file = createReadStream(
+    path.resolve(process.cwd(), 'public', 'edition', definition.fileName),
+  );
   const asset = await environment.createAssetFromFiles({
     fields: {
-      title: localized(`Demonstration ${definition.fileName}`),
+      title: localized(definition.alt),
       description: localized(definition.alt),
       file: localized({
-        contentType: 'image/svg+xml',
+        contentType: definition.contentType,
         fileName: definition.fileName,
-        file: file.toString('utf8'),
+        file,
       }),
     },
   });
@@ -113,14 +118,14 @@ async function ensureImage(definition: (typeof imageDefinitions)[number]) {
     asset: assetLink(publishedAsset.sys.id),
     alternativeText: definition.alt,
     caption: definition.caption,
-    photographerOrSourceCredit: 'Demonstration artwork by the publication team',
-    rightsOrUsageNote: 'Original demonstration artwork. Replace before launch.',
-    focalPointDescription: 'center',
+    photographerOrSourceCredit: definition.credit,
+    rightsOrUsageNote: definition.rightsNote,
+    focalPointDescription: definition.focalPoint,
   });
   return publishEntry(imageEntry);
 }
 
-async function seed() {
+async function seed(publishArticles: boolean) {
   for (const image of imageDefinitions) await ensureImage(image);
 
   for (const author of fixturePublication.authors) {
@@ -193,43 +198,37 @@ async function seed() {
     );
   }
 
-  await upsertEntry('pullQuote', 'pull-quote-demo', {
-    quote: 'This quotation is fictional and exists only to test an editorial component.',
-    attribution: 'Demonstration fixture',
-  });
-  await upsertEntry('factBox', 'fact-box-demo', {
-    title: 'About this demonstration',
-    body: 'Every person, organization, event, and claim in these sample entries is fictional.',
-  });
-
+  const articleEntries = [];
   for (const article of fixturePublication.articles) {
-    await upsertEntry('article', article.id, {
-      title: article.title,
-      slug: article.slug,
-      dek: article.dek,
-      articleType: article.articleType,
-      authors: article.authorIds.map(entryLink),
-      primaryCategory: entryLink(article.primaryCategoryId),
-      topics: article.topicIds.map(entryLink),
-      heroImage: article.heroImage ? entryLink(article.heroImage.id) : undefined,
-      body: article.body,
-      sources: article.sourceIds.map(entryLink),
-      displayPublicationDate: article.publicationDate,
-      book: article.bookId ? entryLink(article.bookId) : undefined,
-      correctionNote: article.correctionNote,
-      previousSlugs: article.previousSlugs,
-      featured: article.featured,
-      internalNotes: 'Fictional seed content. Do not present as real reporting.',
-    });
+    articleEntries.push(
+      await upsertEntry('article', article.id, {
+        title: article.title,
+        slug: article.slug,
+        dek: article.dek,
+        articleType: article.storyLabel,
+        authors: article.authorIds.map(entryLink),
+        primaryCategory: entryLink(article.primaryCategoryId),
+        topics: article.topicIds.map(entryLink),
+        heroImage: article.heroImage ? entryLink(article.heroImage.id) : undefined,
+        body: article.body,
+        sources: article.sourceIds.map(entryLink),
+        relatedArticles: article.relatedArticleIds.map(entryLink),
+        displayPublicationDate: article.publicationDate,
+        book: article.bookId ? entryLink(article.bookId) : undefined,
+        correctionNote: article.correctionNote,
+        previousSlugs: article.previousSlugs,
+        featured: article.featured,
+        internalNotes:
+          'Fictional editorial edition. All people, places, institutions, documents, and local events in this entry are invented. Photography is credited illustrative material and does not document the described event.',
+      }),
+    );
   }
 
-  await publishEntry(
-    await upsertEntry('homepage', 'homepage-default', {
-      categoryDisplayOrder: fixturePublication.homepage.categoryOrderIds.map(entryLink),
-      optionalAnnouncementStrip:
-        'Demonstration edition: every story and person on this site is fictional.',
-    }),
-  );
+  const homepage = await upsertEntry('homepage', 'homepage-default', {
+    categoryDisplayOrder: fixturePublication.homepage.categoryOrderIds.map(entryLink),
+    optionalAnnouncementStrip: fixturePublication.homepage.announcement,
+  });
+  if (publishArticles && homepage.isPublished()) await homepage.unpublish();
 
   await publishEntry(
     await upsertEntry('siteSettings', 'site-settings-default', {
@@ -244,11 +243,19 @@ async function seed() {
       contactLinks: fixturePublication.settings.contactLinks,
       socialLinks: fixturePublication.settings.socialLinks,
       copyrightText: fixturePublication.settings.copyrightText,
-      siteLaunched: false,
+      siteLaunched: fixturePublication.settings.launched,
     }),
   );
 
-  console.log('Seeded Contentful foundations and six fictional draft articles.');
+  if (publishArticles) {
+    for (const entry of articleEntries) await publishEntry(entry);
+  }
+
+  console.log(
+    `Seeded the fictional editorial edition with ${fixturePublication.articles.length} ${
+      publishArticles ? 'published' : 'draft'
+    } articles.`,
+  );
 }
 
 async function publishSmokeArticle() {
@@ -263,7 +270,8 @@ async function unpublishSmokeArticle() {
   console.log('Unpublished the smoke-test article.');
 }
 
-if (action === 'seed') await seed();
+if (action === 'seed') await seed(false);
+else if (action === 'seed-live') await seed(true);
 else if (action === 'publish-test') await publishSmokeArticle();
 else if (action === 'unpublish-test') await unpublishSmokeArticle();
 else throw new Error(`Unknown action: ${action}`);

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { sanitizeLinkUrl } from '../utilities/content';
-import { articleTypes, conditionalRequirementsForArticle } from './article-requirements';
+import { conditionalRequirementsForArticle, storyLabels } from './article-requirements';
 
-export { articleTypes } from './article-requirements';
+export { storyLabels } from './article-requirements';
 
 export const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
@@ -107,7 +107,7 @@ export const articleSchema = z
     title: z.string().min(10).max(140),
     slug: slugSchema,
     dek: z.string().min(30).max(350),
-    articleType: z.enum(articleTypes),
+    storyLabel: z.enum(storyLabels),
     body: richTextDocumentSchema,
     heroImage: imageSchema.optional(),
     authorIds: z.array(z.string()).min(1).max(3),
@@ -126,19 +126,12 @@ export const articleSchema = z
     readingMinutes: z.number().int().positive(),
   })
   .superRefine((article, context) => {
-    const requirements = conditionalRequirementsForArticle(article.articleType);
+    const requirements = conditionalRequirementsForArticle(article.storyLabel);
     if (requirements.heroImage && !article.heroImage) {
       context.addIssue({
         code: 'custom',
-        message: 'Hero image is required for all articles except News Brief.',
+        message: 'Hero image is required for all articles except Briefs.',
         path: ['heroImage'],
-      });
-    }
-    if (requirements.book && !article.bookId) {
-      context.addIssue({
-        code: 'custom',
-        message: 'Book Review articles require a Book reference.',
-        path: ['bookId'],
       });
     }
   });
@@ -149,7 +142,7 @@ export const homepageSchema = z.object({
   breakingArticleIds: z.array(z.string()).default([]),
   featuredAnalysisIds: z.array(z.string()).default([]),
   featuredOpinionIds: z.array(z.string()).default([]),
-  featuredBookReviewIds: z.array(z.string()).default([]),
+  featuredReviewIds: z.array(z.string()).default([]),
   featuredTopicId: z.string().optional(),
   categoryOrderIds: z.array(z.string()).default([]),
   announcement: z.string().default(''),

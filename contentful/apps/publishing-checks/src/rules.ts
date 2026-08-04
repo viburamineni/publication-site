@@ -1,7 +1,7 @@
 import {
-  articleTypes,
   conditionalRequirementsForArticle,
-  type ArticleType,
+  normalizeStoryLabel,
+  type StoryLabel,
 } from '../../../../src/contentful/article-requirements';
 
 export type CheckState = 'pass' | 'fail' | 'not-applicable';
@@ -15,14 +15,14 @@ export interface EntryLink {
 }
 
 export interface PublishingCheck {
-  id: 'article-type' | 'hero-image' | 'book' | 'contentful-validation';
+  id: 'story-label' | 'hero-image' | 'book' | 'contentful-validation';
   label: string;
   detail: string;
   state: CheckState;
 }
 
 export interface PublishingCheckInput {
-  articleType: unknown;
+  storyLabel: unknown;
   heroImage: unknown;
   book: unknown;
 }
@@ -30,10 +30,12 @@ export interface PublishingCheckInput {
 export type LinkedEntryStatus = 'published' | 'draft' | 'missing' | 'unavailable';
 export type ResolveLinkedEntryStatus = (entryId: string) => Promise<LinkedEntryStatus>;
 
-function articleTypeFrom(value: unknown): ArticleType | undefined {
-  return typeof value === 'string' && articleTypes.includes(value as ArticleType)
-    ? (value as ArticleType)
-    : undefined;
+function storyLabelFrom(value: unknown): StoryLabel | undefined {
+  try {
+    return normalizeStoryLabel(value);
+  } catch {
+    return undefined;
+  }
 }
 
 function entryIdFrom(value: unknown): string | undefined {
@@ -82,36 +84,36 @@ export async function evaluatePublishingChecks(
   input: PublishingCheckInput,
   resolveLinkedEntryStatus: ResolveLinkedEntryStatus,
 ): Promise<PublishingCheck[]> {
-  const articleType = articleTypeFrom(input.articleType);
-  if (!articleType) {
+  const storyLabel = storyLabelFrom(input.storyLabel);
+  if (!storyLabel) {
     return [
       {
-        id: 'article-type',
-        label: 'Article type',
-        detail: 'Select an article type before publishing.',
+        id: 'story-label',
+        label: 'Story label',
+        detail: 'Choose a valid story label before publishing.',
         state: 'fail',
       },
       {
         id: 'hero-image',
         label: 'Hero image',
-        detail: 'The requirement depends on the article type.',
+        detail: 'The requirement depends on the story label.',
         state: 'not-applicable',
       },
       {
         id: 'book',
         label: 'Book',
-        detail: 'The requirement depends on the article type.',
+        detail: 'The requirement depends on the story label.',
         state: 'not-applicable',
       },
     ];
   }
 
-  const requirements = conditionalRequirementsForArticle(articleType);
+  const requirements = conditionalRequirementsForArticle(storyLabel);
   const checks: PublishingCheck[] = [
     {
-      id: 'article-type',
-      label: 'Article type',
-      detail: `${articleType} selected.`,
+      id: 'story-label',
+      label: 'Story label',
+      detail: `${storyLabel} selected.`,
       state: 'pass',
     },
   ];
@@ -127,21 +129,25 @@ export async function evaluatePublishingChecks(
       : {
           id: 'hero-image',
           label: 'Hero image',
-          detail: 'Not required for a News Brief.',
+          detail: 'Not required for a Brief.',
           state: 'not-applicable',
         },
   );
 
-  checks.push(
-    requirements.book
-      ? await checkRequiredEntry('book', 'Book', input.book, resolveLinkedEntryStatus)
-      : {
-          id: 'book',
-          label: 'Book',
-          detail: 'Only required for a Book Review.',
-          state: 'not-applicable',
-        },
-  );
+  const selectedBookId = entryIdFrom(input.book);
+  if (selectedBookId) {
+    checks.push(await checkRequiredEntry('book', 'Book', input.book, resolveLinkedEntryStatus));
+  } else {
+    checks.push({
+      id: 'book',
+      label: 'Book',
+      detail:
+        storyLabel === 'Review'
+          ? 'Optional. Add a Book when this Review is about a book.'
+          : 'Not attached.',
+      state: 'not-applicable',
+    });
+  }
 
   return checks;
 }

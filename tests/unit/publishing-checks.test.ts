@@ -10,7 +10,7 @@ const published = vi.fn(async (): Promise<LinkedEntryStatus> => 'published');
 describe('Contentful publishing checks', () => {
   it('requires a published hero image for standard articles', async () => {
     const missing = await evaluatePublishingChecks(
-      { articleType: 'News', heroImage: undefined, book: undefined },
+      { storyLabel: 'Standard story', heroImage: undefined, book: undefined },
       published,
     );
     expect(publishingChecksPass(missing)).toBe(false);
@@ -18,7 +18,7 @@ describe('Contentful publishing checks', () => {
 
     const complete = await evaluatePublishingChecks(
       {
-        articleType: 'News',
+        storyLabel: 'Standard story',
         heroImage: { sys: { id: 'image-entry' } },
         book: undefined,
       },
@@ -27,42 +27,52 @@ describe('Contentful publishing checks', () => {
     expect(publishingChecksPass(complete)).toBe(true);
   });
 
-  it('allows a News Brief without a hero image', async () => {
+  it('allows a Brief without a hero image', async () => {
     const checks = await evaluatePublishingChecks(
-      { articleType: 'News Brief', heroImage: undefined, book: undefined },
+      { storyLabel: 'Brief', heroImage: undefined, book: undefined },
       published,
     );
     expect(publishingChecksPass(checks)).toBe(true);
     expect(checks.find((check) => check.id === 'hero-image')?.state).toBe('not-applicable');
   });
 
-  it('requires a published Book entry only for Book Reviews', async () => {
-    const missing = await evaluatePublishingChecks(
+  it('allows Reviews without Books and verifies a Book when one is attached', async () => {
+    const withoutBook = await evaluatePublishingChecks(
       {
-        articleType: 'Book Review',
+        storyLabel: 'Review',
         heroImage: { sys: { id: 'image-entry' } },
         book: undefined,
       },
       published,
     );
-    expect(publishingChecksPass(missing)).toBe(false);
-    expect(missing.find((check) => check.id === 'book')?.state).toBe('fail');
+    expect(publishingChecksPass(withoutBook)).toBe(true);
+    expect(withoutBook.find((check) => check.id === 'book')?.state).toBe('not-applicable');
 
-    const complete = await evaluatePublishingChecks(
+    const withPublishedBook = await evaluatePublishingChecks(
       {
-        articleType: 'Book Review',
+        storyLabel: 'Review',
         heroImage: { sys: { id: 'image-entry' } },
         book: { sys: { id: 'book-entry' } },
       },
       published,
     );
-    expect(publishingChecksPass(complete)).toBe(true);
+    expect(publishingChecksPass(withPublishedBook)).toBe(true);
+
+    const withDraftBook = await evaluatePublishingChecks(
+      {
+        storyLabel: 'Review',
+        heroImage: { sys: { id: 'image-entry' } },
+        book: { sys: { id: 'book-entry' } },
+      },
+      async (entryId) => (entryId === 'book-entry' ? 'draft' : 'published'),
+    );
+    expect(publishingChecksPass(withDraftBook)).toBe(false);
   });
 
   it('rejects selected references that are still drafts or cannot be verified', async () => {
     const draft = await evaluatePublishingChecks(
       {
-        articleType: 'Analysis',
+        storyLabel: 'Analysis',
         heroImage: { sys: { id: 'draft-image' } },
         book: undefined,
       },
@@ -73,7 +83,7 @@ describe('Contentful publishing checks', () => {
 
     const unavailable = await evaluatePublishingChecks(
       {
-        articleType: 'News',
+        storyLabel: 'Standard story',
         heroImage: { sys: { id: 'unavailable-image' } },
         book: undefined,
       },

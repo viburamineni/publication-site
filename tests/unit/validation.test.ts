@@ -59,14 +59,63 @@ describe('publication validation', () => {
     expect(articleSchema.safeParse(noCredit).success).toBe(false);
   });
 
-  it('rejects invalid article types and book reviews without books', () => {
+  it('rejects invalid Story Labels and allows Reviews without Book metadata', () => {
     const article = copyFixture().articles[0]!;
-    expect(articleSchema.safeParse({ ...article, articleType: 'Advertisement' }).success).toBe(
+    expect(articleSchema.safeParse({ ...article, storyLabel: 'Advertisement' }).success).toBe(
       false,
     );
     expect(
-      articleSchema.safeParse({ ...article, articleType: 'Book Review', bookId: undefined })
-        .success,
-    ).toBe(false);
+      articleSchema.safeParse({ ...article, storyLabel: 'Review', bookId: undefined }).success,
+    ).toBe(true);
+  });
+
+  it('requires hero images for every Story Label except Brief', () => {
+    const article = copyFixture().articles[0]!;
+    expect(
+      articleSchema.safeParse({ ...article, storyLabel: 'Brief', heroImage: undefined }).success,
+    ).toBe(true);
+    for (const storyLabel of ['Standard story', 'Analysis', 'Opinion', 'Review'] as const) {
+      expect(
+        articleSchema.safeParse({ ...article, storyLabel, heroImage: undefined }).success,
+        storyLabel,
+      ).toBe(false);
+    }
+  });
+
+  it('covers all Story Labels and allows multiple labels in one Category', () => {
+    const publication = copyFixture();
+    expect(new Set(publication.articles.map((article) => article.storyLabel))).toEqual(
+      new Set(['Standard story', 'Brief', 'Analysis', 'Opinion', 'Review']),
+    );
+
+    const americasLabels = new Set(
+      publication.articles
+        .filter((article) => article.primaryCategoryId === 'category-americas')
+        .map((article) => article.storyLabel),
+    );
+    expect(americasLabels).toEqual(new Set(['Standard story', 'Brief']));
+  });
+
+  it('preserves the requested publication taxonomy and navigation order', () => {
+    const publication = copyFixture();
+    expect(publication.settings.publicationName).toBe('The Transoceanic Cable');
+    expect(publication.categories.map((category) => category.name)).toEqual([
+      'Analysis',
+      'Guest Articles',
+      'Culture and History',
+      'Africa',
+      'Americas',
+      'Asia',
+      'Australia and Oceania',
+      'Europe',
+    ]);
+    expect(publication.topics.map((topic) => topic.name)).toEqual([
+      'Book Reviews',
+      'Invitational Pieces',
+      'Analysis',
+      'World History',
+      'World Events',
+      'Geopolitics',
+    ]);
   });
 });

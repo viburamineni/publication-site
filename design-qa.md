@@ -75,9 +75,9 @@ The following differences are expected product constraints, not design drift:
 
 ### Pass 4: editorial metadata
 
-- Finding: P2, an Opinion article whose type and primary category were both named “Opinion” rendered the label twice.
-- Fix: introduced one shared metadata rule that suppresses a category label only when it duplicates the article type. Distinct pairs such as “News · World” and “Analysis Politics” remain intact.
-- Post-fix evidence: `/tmp/newspaper-editorial-metadata-1159x784.png`. The latest rail now exposes one “Opinion” label, retains every distinct type/category pair, and has no horizontal overflow.
+- Finding: P2, an Opinion article whose Story Label and Category were both named “Opinion” rendered the label twice.
+- Fix: introduced one shared metadata rule that suppresses a Category only when it duplicates the Story Label. Distinct pairs such as “Brief · Technology” remain intact, while Standard story has no public label.
+- Post-fix evidence: `/tmp/newspaper-editorial-metadata-1159x784.png`. The latest rail exposes one “Opinion” label, retains every distinct Story Label/Category pair, and has no horizontal overflow.
 
 ### Pass 5: archive endings
 
@@ -87,8 +87,8 @@ The following differences are expected product constraints, not design drift:
 
 ### Pass 6: reader language and medium layouts
 
-- Finding: P2, internal editorial terms such as “Long Form,” “News Brief,” “Analysis,” and “Topic” did not explain themselves to readers.
-- Fix: mapped the internal Contentful values to “In-depth report,” “Brief update,” “Explainer,” and other plain display labels without changing the content model. Reframed the featured topic as “Ongoing coverage,” added a one-sentence definition, and renamed its action to “View related stories.”
+- Finding: P2, legacy editorial terms such as “Long Form” and “News Brief” did not explain themselves to readers.
+- Fix: this display-only mapping was superseded by migration 005. Contentful now uses Standard story, Brief, Analysis, Opinion, and Review; Standard story is omitted publicly, while the four special labels use the same words editors select.
 - Post-fix evidence: `/tmp/newspaper-clarity-home-767x784.png` and `/tmp/newspaper-ongoing-coverage-767x784.png`.
 - Finding: P2, “Current edition” added no useful information, the 404 sentence lost a visible word space, and masthead top and bottom whitespace differed.
 - Fix: removed the filler status, kept the date and search action, inserted an explicit 404 word space, and set symmetric masthead padding. Measured masthead whitespace is 20 CSS pixels at 767 pixels wide and 16 CSS pixels at 390 pixels wide.

@@ -107,12 +107,12 @@ function setupSidebar(sdk: SidebarAppSDK): void {
     return;
   }
 
-  const articleType = sdk.entry.fields.articleType;
+  const storyLabel = sdk.entry.fields.articleType;
   const heroImage = sdk.entry.fields.heroImage;
   const book = sdk.entry.fields.book;
   const validationField = sdk.entry.fields[VALIDATION_FIELD];
 
-  if (!articleType || !heroImage || !book || !validationField) {
+  if (!storyLabel || !heroImage || !book || !validationField) {
     renderSidebarSetupError(
       'The Article content model is missing fields required by Publishing checks.',
     );
@@ -129,7 +129,7 @@ function setupSidebar(sdk: SidebarAppSDK): void {
 
     const checks = await evaluatePublishingChecks(
       {
-        articleType: articleType.getValue(sdk.locales.default),
+        storyLabel: storyLabel.getValue(sdk.locales.default),
         heroImage: heroImage.getValue(sdk.locales.default),
         book: book.getValue(sdk.locales.default),
       },
@@ -166,7 +166,7 @@ function setupSidebar(sdk: SidebarAppSDK): void {
   };
 
   const unsubscribe = [
-    articleType.onValueChanged(sdk.locales.default, queueRefresh),
+    storyLabel.onValueChanged(sdk.locales.default, queueRefresh),
     heroImage.onValueChanged(sdk.locales.default, queueRefresh),
     book.onValueChanged(sdk.locales.default, queueRefresh),
   ];
@@ -195,7 +195,7 @@ async function setupConfiguration(sdk: ConfigAppSDK): Promise<void> {
       <h1 class="title" id="configuration-title">Publishing checks</h1>
       <p class="configuration-copy">
         Adds a live checklist to the Article sidebar. Contentful will block publishing when a
-        required hero image or Book Review reference is missing.
+        required hero image is missing or an attached Book entry is unpublished.
       </p>
       <p class="configuration-status" data-state="${modelReady ? 'pass' : 'fail'}">
         ${modelReady ? 'Article content model is ready.' : 'Article content model migration required.'}
@@ -240,7 +240,7 @@ function renderLocalPreview(preview: string): void {
         <h1 class="title" id="configuration-title">Publishing checks</h1>
         <p class="configuration-copy">
           Adds a live checklist to the Article sidebar. Contentful will block publishing when a
-          required hero image or Book Review reference is missing.
+          required hero image is missing or an attached Book entry is unpublished.
         </p>
         <p class="configuration-status" data-state="pass">Article content model is ready.</p>
         <p class="configuration-note">
@@ -254,9 +254,9 @@ function renderLocalPreview(preview: string): void {
   const ready = preview === 'ready';
   renderChecks([
     {
-      id: 'article-type',
-      label: 'Article type',
-      detail: 'Book Review selected.',
+      id: 'story-label',
+      label: 'Story label',
+      detail: 'Review selected.',
       state: 'pass',
     },
     {
@@ -270,8 +270,10 @@ function renderLocalPreview(preview: string): void {
     {
       id: 'book',
       label: 'Book',
-      detail: ready ? 'Book is selected and published.' : 'Choose a book before publishing.',
-      state: ready ? 'pass' : 'fail',
+      detail: ready
+        ? 'Book is selected and published.'
+        : 'Optional. Add a Book when this Review is about a book.',
+      state: ready ? 'pass' : 'not-applicable',
     },
   ]);
   app.querySelector<HTMLButtonElement>('.action')?.addEventListener('click', () => {

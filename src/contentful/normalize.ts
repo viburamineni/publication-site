@@ -2,6 +2,7 @@ import type { Entry, EntrySkeletonType } from 'contentful';
 import { publicationSchema } from './schemas';
 import type { Article, Image, Publication } from './types';
 import { materializeContentfulImage } from './image-pipeline';
+import { normalizeStoryLabel } from './article-requirements';
 import {
   estimateReadingMinutes,
   plainTextFromRichText,
@@ -207,7 +208,7 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
       title: value.title,
       slug: value.slug,
       dek: value.dek,
-      articleType: value.articleType,
+      storyLabel: normalizeStoryLabel(value.articleType),
       body,
       ...(value.heroImage
         ? { heroImage: imageReference(value.heroImage, entry.sys.id, 'heroImage') }
@@ -277,7 +278,7 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
     featuredOpinionIds: homepageEntry
       ? referenceIds(homepageFields.featuredOpinions, homepageEntry.sys.id, 'featuredOpinions')
       : [],
-    featuredBookReviewIds: homepageEntry
+    featuredReviewIds: homepageEntry
       ? referenceIds(
           homepageFields.featuredBookReviews,
           homepageEntry.sys.id,

@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
 import { publication, indexes } from '../contentful/data';
-import { publishedArticles } from '../utilities/content';
+import { displayStoryLabel, publishedArticles } from '../utilities/content';
 
 export async function GET(context: { site?: URL }) {
   return rss({
@@ -13,7 +13,7 @@ export async function GET(context: { site?: URL }) {
       pubDate: new Date(article.publicationDate),
       link: `/articles/${article.slug}/`,
       categories: [
-        article.articleType,
+        ...(displayStoryLabel(article.storyLabel) ? [displayStoryLabel(article.storyLabel)!] : []),
         indexes.categories.get(article.primaryCategoryId)?.name ?? 'News',
       ],
     })),

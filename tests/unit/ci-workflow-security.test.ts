@@ -49,22 +49,22 @@ describe('CI workflow secret isolation', () => {
 });
 
 describe('production deployment action integrity', () => {
-  it('pins the publication source checkout to the reviewed actions/checkout v4.4.0 commit', () => {
+  it('pins the publication source checkout to the reviewed actions/checkout v7.0.1 commit', () => {
     const sourceCheckout = getDeploymentStepBlock('Check out publication source');
 
     expect(sourceCheckout).toContain(
-      'uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0',
+      'uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1',
     );
     expect(sourceCheckout).toContain('path: source');
   });
 
-  it('pins the fallback checkout to the reviewed actions/checkout v4.4.0 commit', () => {
+  it('pins the fallback checkout to the reviewed actions/checkout v7.0.1 commit', () => {
     const fallbackCheckout = getDeploymentStepBlock('Check out independent fallback site');
 
     expect(fallbackCheckout).toContain(
-      'uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0',
+      'uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1',
     );
-    expect(fallbackCheckout).not.toContain('actions/checkout@v4');
+    expect(fallbackCheckout).not.toContain('actions/checkout@v7');
     expect(fallbackCheckout).toContain('repository: viburamineni/viburamineni.github.io');
     expect(fallbackCheckout).toContain('path: fallback');
     expect(fallbackCheckout).toContain('ssh-key: ${{ secrets.FALLBACK_DEPLOY_KEY }}');

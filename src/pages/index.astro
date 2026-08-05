@@ -18,7 +18,7 @@ const secondary = homepageSelection.editorPickIds
   .map((id) => indexes.articles.get(id))
   .filter((article) => article !== undefined)
   .slice(0, 3);
-const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 5);
+const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 6);
 const featuredTopic = homepageSelection.featuredTopicId
   ? indexes.topics.get(homepageSelection.featuredTopicId)
   : undefined;

@@ -359,6 +359,9 @@ input {
 .latest-rail {
   grid-column: 9 / -1;
   grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-self: stretch;
   padding-left: 1.5rem;
   border-left: 1px solid var(--rule);
@@ -1201,12 +1204,18 @@ input {
 
   .latest-rail {
     order: 3;
+    display: block;
     margin-top: 1.25rem;
     padding: 0;
     border-left: 0;
   }
 
-  .latest-rail .latest-item:last-child {
+  .latest-rail .latest-item:nth-child(n + 6) {
+    display: none;
+  }
+
+  .latest-rail .latest-item:nth-child(5) {
+    border-bottom: 0;
     padding-bottom: 0;
   }
 

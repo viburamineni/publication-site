@@ -83,9 +83,36 @@ test('homepage curation uses Editor’s picks while Latest stays automatic', asy
   expect(homepageSource).toContain('selectHomepageContent');
   expect(homepageSource).toContain('Editor’s picks');
   expect(homepageSource).toContain(
-    'const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 5)',
+    'const latest = articles.filter((article) => article.id !== lead?.id).slice(0, 6)',
   );
   expect(homepageSource).not.toContain('The wider edition');
+});
+
+test('Latest fills its desktop rail and limits the vertical layout to five stories', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+
+  const latestItems = page.locator('.latest-rail .latest-item');
+  await expect(latestItems).toHaveCount(6);
+  await expect(latestItems.nth(5)).toBeVisible();
+
+  const railBox = await page.locator('.latest-rail').boundingBox();
+  const headerBox = await page.locator('.latest-rail > header').boundingBox();
+  const listBox = await page.locator('.latest-list').boundingBox();
+
+  expect(railBox).not.toBeNull();
+  expect(headerBox).not.toBeNull();
+  expect(listBox).not.toBeNull();
+
+  const topSpace = headerBox!.y - railBox!.y;
+  const bottomSpace = railBox!.y + railBox!.height - (listBox!.y + listBox!.height);
+  expect(Math.abs(topSpace - bottomSpace)).toBeLessThan(1);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(latestItems.nth(4)).toBeVisible();
+  await expect(latestItems.nth(5)).toBeHidden();
 });
 
 test('topic pages speak to readers without explaining the publishing system', async ({ page }) => {

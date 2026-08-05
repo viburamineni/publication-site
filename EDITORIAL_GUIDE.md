@@ -72,7 +72,7 @@ Categories. Story Labels remain a separate editorial choice and do not alter thi
    or reference requirements are not satisfied.
 8. Add sources and related articles. Never paste scripts, arbitrary HTML, or iframe code.
 9. Review facts, sources, attribution, headings, links, and image rights. Keep the entry as a draft until that review is complete.
-10. Click **Publish**. Published articles appear publicly after the automatic Cloudflare build; drafts remain private.
+10. Click **Publish**. Published articles appear publicly after the automatic GitHub deployment; drafts remain private.
 
 ## Curate the homepage
 
@@ -105,4 +105,4 @@ For a correction, edit the article, fill **Correction note** with what changed a
 
 To unpublish, open the entry menu and choose **Unpublish**. The webhook rebuild removes it while the previous successful deployment remains available until the rebuild succeeds.
 
-Image-only changes do not intentionally trigger a second build. Republish one referencing article or manually trigger a Cloudflare deployment.
+Image-only changes do not intentionally trigger a second build. Republish one referencing article or manually run **Actions > Production deployment > Run workflow** in GitHub.

@@ -38,7 +38,7 @@ Whether the publication has 100 readers or 100,000 readers, Contentful usage rem
 
 ### Publishing
 
-Contentful includes 100,000 API calls per month. At the current publication size, one completed website build uses approximately one call.
+Contentful includes 100,000 API calls per month. The current build requests up to 1,000 published entries and their linked content in one Delivery API call. Larger publications use another call for each additional page of entries.
 
 | Completed builds | Approximate monthly usage |
 | ---------------- | ------------------------: |
@@ -60,7 +60,7 @@ The image cache keeps routine builds much smaller.
 
 ### Website size
 
-Cloudflare allows 20,000 files in one static deployment.
+Cloudflare's free Workers plan allows 20,000 files in one static deployment and 25 MiB per file. This project stops earlier, at 18,000 files or 20 MiB per file, so a build fails before it reaches the service limits.
 
 A publication with 100 articles and 500 images would likely use about 1,700 to 2,000 files, or approximately 10% of that allowance.
 

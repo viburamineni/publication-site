@@ -14,7 +14,7 @@ One successful workflow:
 
 ## Failure and rollback
 
-Contentful outage or validation errors fail the new build; the existing production Worker version and fallback snapshot remain served. Read the first build error, locate its Contentful entry ID, fix and republish. For a bad frontend, open the Worker's deployment history, select the last known-good version, and roll back. The former Pages site remains a migration fallback until explicitly retired. Never edit generated production output manually.
+Contentful outage or validation errors fail the new build; the existing production Worker version and fallback snapshot remain served. Read the first build error, locate its Contentful entry ID, fix and republish. For a bad frontend, open the Worker's deployment history, select the last known-good version, and roll back. GitHub Pages is the independent fallback. Cloudflare Pages is not part of the current deployment. Never edit generated production output manually.
 
 If the Contentful GitHub token leaks: revoke it in GitHub, create a replacement restricted to `viburamineni/publication-site` with Contents write access, replace the secret `Authorization` header in Contentful, and test one controlled dispatch. If the Cloudflare token or fallback deploy key leaks, rotate only that credential and test the production workflow.
 

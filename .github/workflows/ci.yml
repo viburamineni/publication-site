@@ -38,16 +38,15 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run validate:content
-        if: env.CONTENTFUL_SPACE_ID != '' && env.CONTENTFUL_DELIVERY_TOKEN != ''
+      - name: Validate published Contentful content
         env:
           CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
           CONTENTFUL_ENVIRONMENT: master
           CONTENTFUL_DELIVERY_TOKEN: ${{ secrets.CONTENTFUL_DELIVERY_TOKEN }}
           PUBLICATION_ENV: production
-      - name: Note unconfigured integration secrets
-        if: env.CONTENTFUL_SPACE_ID == '' || env.CONTENTFUL_DELIVERY_TOKEN == ''
-        run: echo "Contentful integration check is pending repository secret configuration."
-        env:
-          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
-          CONTENTFUL_DELIVERY_TOKEN: ${{ secrets.CONTENTFUL_DELIVERY_TOKEN }}
+        run: |
+          if [ -z "$CONTENTFUL_SPACE_ID" ] || [ -z "$CONTENTFUL_DELIVERY_TOKEN" ]; then
+            echo "Contentful integration check is pending repository secret configuration."
+            exit 0
+          fi
+          npm run validate:content

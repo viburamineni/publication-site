@@ -43,7 +43,10 @@ describe('CI workflow secret isolation', () => {
   it('preserves secretless pull-request checks and trusted post-merge validation', () => {
     expect(workflow).toContain('  pull_request:');
     expect(verifyJob).not.toMatch(/^ {4}if:/m);
-    expect(contentfulJob).toContain('- run: npm run validate:content');
+    expect(contentfulJob).toContain('- name: Validate published Contentful content');
+    expect(contentfulJob).toContain('npm run validate:content');
+    expect(contentfulJob).toContain('[ -z "$CONTENTFUL_SPACE_ID" ]');
+    expect(contentfulJob).toContain('[ -z "$CONTENTFUL_DELIVERY_TOKEN" ]');
     expect(contentfulJob).toContain('PUBLICATION_ENV: production');
   });
 });

@@ -4,13 +4,13 @@
   "type": "module",
   "version": "1.0.0",
   "engines": {
-    "node": ">=24 <25",
+    "node": ">=24.16 <25",
     "npm": ">=11"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "npm run clean:generated && astro build && tsx scripts/copy-generated-images.ts && tsx scripts/write-redirects.ts && tsx scripts/pagefind-anchor.ts create && pagefind --site dist && tsx scripts/pagefind-anchor.ts remove && npm run check:generated",
-    "build:test": "PUBLICATION_USE_FIXTURES=true PUBLIC_SITE_URL=https://example.pages.dev npm run build",
+    "build:test": "PUBLICATION_USE_FIXTURES=true PUBLIC_SITE_URL=https://example.com npm run build",
     "check:generated": "tsx scripts/check-generated-files.ts",
     "clean:generated": "tsx scripts/clean-generated.ts",
     "contentful:migrate": "contentful-migration --space-id \"$CONTENTFUL_SPACE_ID\" --environment-id \"${CONTENTFUL_ENVIRONMENT:-master}\" --access-token \"$CONTENTFUL_MANAGEMENT_TOKEN\" --yes contentful/migrations/001-initial-model.cjs",

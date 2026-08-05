@@ -1,12 +1,12 @@
-# Publication Site
+# The Transoceanic Cable
 
 A static-first news publication built with Astro, Contentful, Pagefind, GitHub Actions, and Cloudflare Workers Static Assets. Contentful is contacted only during builds. Readers receive static HTML, locally deployed responsive images, and a local search index.
 
 ## Architecture
 
-`Contentful web app -> GitHub Actions -> Delivery API at build time -> Zod normalization -> Astro static HTML -> Cloudflare Workers Static Assets`
+`Contentful publish -> GitHub Actions -> Delivery API at build time -> Zod normalization -> Astro static HTML -> Cloudflare Workers Static Assets`
 
-Each successful build is also copied to GitHub Pages at <https://viburamineni.github.io> as an independently hosted fallback. The former Cloudflare Pages deployment remains available during migration.
+Each successful build is also copied to GitHub Pages at <https://viburamineni.github.io> as an independently hosted fallback. Cloudflare Pages is not part of the current build or hosting pipeline.
 
 The committed fixture publication is fictional and exists for development and CI. Production builds require Contentful credentials and fail closed when content is invalid.
 
@@ -18,7 +18,7 @@ display-order fields.
 
 ## Setup
 
-Requires Node 24 LTS and npm 11.
+Requires Node 24.16 or later in the Node 24 LTS line, plus npm 11.
 
 ```sh
 npm ci
@@ -52,6 +52,7 @@ npm test
 npm run build:test
 npm run test:e2e
 npm run ci
+npm run deploy:worker:dry-run
 ```
 
 The build downloads Contentful images into versioned local paths, generates at most three WebP variants, builds Pagefind, generates redirects, and fails above 18,000 files or 20 MiB per file.
@@ -63,7 +64,6 @@ The build downloads Contentful images into versioned local paths, generates at m
 - Cloudflare: <https://dash.cloudflare.com/>
 - Production Worker: <https://publication-site-live.intraducine.workers.dev>
 - Independent fallback: <https://viburamineni.github.io>
-- Migration fallback: <https://publication-site.pages.dev>
 
 Publishing, unpublishing, and deletion events invoke GitHub's `contentful-published` repository dispatch through a Contentful webhook. The workflow waits 90 seconds and cancels superseded runs so nearby editorial changes collapse into one final build. GitHub stores the Contentful delivery credentials, the Cloudflare deployment token, and the fallback deploy key. Cloudflare receives only the validated `dist` directory and does not run the build.
 

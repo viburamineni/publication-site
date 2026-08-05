@@ -1,15 +1,14 @@
 import { init, locations, type ConfigAppSDK, type SidebarAppSDK } from '@contentful/app-sdk';
 import {
+  createRefreshSequence,
   evaluatePublishingChecks,
-  publishingChecksPass,
   type LinkedEntryStatus,
   type PublishingCheck,
 } from './rules';
 import './styles.css';
 
 const ARTICLE_CONTENT_TYPE = 'article';
-const VALIDATION_FIELD = 'publishingChecks';
-const READY_VALUE = 'ready';
+const LEGACY_VALIDATION_FIELD = 'publishingChecks';
 
 type EntryDependencyKind = 'entry' | 'asset';
 
@@ -54,7 +53,7 @@ function renderChecks(checks: PublishingCheck[], busy = false): void {
   const summary = busy
     ? 'Checking article…'
     : passed
-      ? 'Ready for Contentful to publish'
+      ? 'Checklist passes. The build validates again.'
       : `${failureCount} ${failureCount === 1 ? 'issue' : 'issues'} to fix`;
   const summaryState = busy ? 'checking' : passed ? 'pass' : 'fail';
 
@@ -178,23 +177,6 @@ async function linkedEntryStatus(
   }
 }
 
-async function syncValidationField(sdk: SidebarAppSDK, checks: PublishingCheck[]): Promise<void> {
-  const field = sdk.entry.fields[VALIDATION_FIELD];
-  const locale = sdk.locales.default;
-  const nextValue = publishingChecksPass(checks) ? READY_VALUE : undefined;
-  const currentValue = field?.getValue(locale);
-
-  if (!field) {
-    throw new Error('Run the publishing-checks content model migration before using this app.');
-  }
-  if (nextValue === currentValue) return;
-  if (nextValue) {
-    await field.setValue(nextValue, locale);
-  } else if (currentValue !== undefined) {
-    await field.removeValue(locale);
-  }
-}
-
 function setupSidebar(sdk: SidebarAppSDK): void {
   sdk.window.startAutoResizer();
 
@@ -212,7 +194,6 @@ function setupSidebar(sdk: SidebarAppSDK): void {
   const book = sdk.entry.fields.book;
   const relatedArticles = sdk.entry.fields.relatedArticles;
   const body = sdk.entry.fields.body;
-  const validationField = sdk.entry.fields[VALIDATION_FIELD];
 
   if (
     !storyLabel ||
@@ -223,8 +204,7 @@ function setupSidebar(sdk: SidebarAppSDK): void {
     !sources ||
     !book ||
     !relatedArticles ||
-    !body ||
-    !validationField
+    !body
   ) {
     renderSidebarSetupError(
       'The Article content model is missing fields required by Publishing checks.',
@@ -232,15 +212,14 @@ function setupSidebar(sdk: SidebarAppSDK): void {
     return;
   }
 
-  let refreshNumber = 0;
+  const refreshSequence = createRefreshSequence();
   let timer: number | undefined;
   let latestChecks: PublishingCheck[] = [];
   let bodyReferenceSignature = JSON.stringify(
     richTextEntryLinks(body.getValue(sdk.locales.default)).map((link) => link.sys.id),
   );
 
-  const refresh = async (): Promise<void> => {
-    const thisRefresh = ++refreshNumber;
+  const refresh = async (sequence = refreshSequence.next()): Promise<void> => {
     renderChecks(latestChecks, true);
 
     const statusCache = new Map<string, Promise<LinkedEntryStatus>>();
@@ -267,24 +246,10 @@ function setupSidebar(sdk: SidebarAppSDK): void {
       resolveStatus,
     );
 
-    if (thisRefresh !== refreshNumber) return;
+    if (!refreshSequence.isCurrent(sequence)) return;
 
-    try {
-      await syncValidationField(sdk, checks);
-      latestChecks = checks;
-      renderChecks(checks);
-    } catch {
-      latestChecks = [
-        ...checks,
-        {
-          id: 'contentful-validation',
-          label: 'Contentful validation',
-          detail: 'The publishing status could not be updated. Check your editing permissions.',
-          state: 'fail',
-        },
-      ];
-      renderChecks(latestChecks);
-    }
+    latestChecks = checks;
+    renderChecks(checks);
 
     app.querySelector<HTMLButtonElement>('.action')?.addEventListener('click', () => {
       void refresh();
@@ -293,7 +258,9 @@ function setupSidebar(sdk: SidebarAppSDK): void {
 
   const queueRefresh = (): void => {
     window.clearTimeout(timer);
-    timer = window.setTimeout(() => void refresh(), 120);
+    const sequence = refreshSequence.next();
+    renderChecks(latestChecks, true);
+    timer = window.setTimeout(() => void refresh(sequence), 120);
   };
 
   const queueRefreshWhenBodyLinksChange = (): void => {
@@ -332,7 +299,7 @@ async function setupConfiguration(sdk: ConfigAppSDK): Promise<void> {
   let modelReady = false;
   try {
     const contentType = await sdk.cma.contentType.get({ contentTypeId: ARTICLE_CONTENT_TYPE });
-    modelReady = contentType.fields.some((field) => field.id === VALIDATION_FIELD);
+    modelReady = !contentType.fields.some((field) => field.id === LEGACY_VALIDATION_FIELD);
   } catch {
     modelReady = false;
   }
@@ -341,17 +308,17 @@ async function setupConfiguration(sdk: ConfigAppSDK): Promise<void> {
     <section class="configuration" aria-labelledby="configuration-title">
       <h1 class="title" id="configuration-title">Publishing checks</h1>
       <p class="configuration-copy">
-        Adds a live checklist to the Article sidebar. Contentful will block publishing when
-        required or selected linked content is missing or unpublished.
+        Adds a live checklist to the Article sidebar. The production build independently validates
+        the current published Article and its dependencies before deployment.
       </p>
       <p class="configuration-status" data-state="${modelReady ? 'pass' : 'fail'}">
-        ${modelReady ? 'Article content model is ready.' : 'Article content model migration required.'}
+        ${modelReady ? 'Article content model is ready.' : 'Secure content model migration required.'}
       </p>
       <p class="configuration-note">
         ${
           modelReady
             ? 'Choose Install or Save to add the checklist to the Article sidebar.'
-            : 'Run migration 004-add-publishing-checks before installing this app.'
+            : 'Run migration 007-remove-client-readiness-marker before installing this app.'
         }
       </p>
     </section>
@@ -359,7 +326,9 @@ async function setupConfiguration(sdk: ConfigAppSDK): Promise<void> {
 
   sdk.app.onConfigure(async () => {
     if (!modelReady) {
-      sdk.notifier.error('Run migration 004-add-publishing-checks before installing this app.');
+      sdk.notifier.error(
+        'Run migration 007-remove-client-readiness-marker before installing this app.',
+      );
       return false;
     }
 
@@ -386,8 +355,8 @@ function renderLocalPreview(preview: string): void {
       <section class="configuration" aria-labelledby="configuration-title">
         <h1 class="title" id="configuration-title">Publishing checks</h1>
         <p class="configuration-copy">
-          Adds a live checklist to the Article sidebar. Contentful will block publishing when
-          required or selected linked content is missing or unpublished.
+          Adds a live checklist to the Article sidebar. The production build independently validates
+          the current published Article and its dependencies before deployment.
         </p>
         <p class="configuration-status" data-state="pass">Article content model is ready.</p>
         <p class="configuration-note">

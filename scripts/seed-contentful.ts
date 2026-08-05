@@ -224,7 +224,6 @@ async function seed(publishArticles: boolean) {
         correctionNote: article.correctionNote,
         previousSlugs: article.previousSlugs,
         featured: article.featured,
-        publishingChecks: 'ready',
         internalNotes:
           'Fictional editorial edition. All people, places, institutions, documents, and local events in this entry are invented. Photography is credited illustrative material and does not document the described event.',
       }),

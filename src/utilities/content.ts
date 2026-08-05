@@ -118,10 +118,19 @@ export function formatPublicationDate(value: string): string {
 
 export function plainTextFromRichText(document: unknown): string {
   if (!document || typeof document !== 'object') return '';
-  const node = document as { value?: unknown; content?: unknown[] };
-  const ownValue = typeof node.value === 'string' ? node.value : '';
-  const children = Array.isArray(node.content)
-    ? node.content.map((child) => plainTextFromRichText(child)).join(' ')
-    : '';
-  return `${ownValue} ${children}`.trim();
+  const values: string[] = [];
+  const stack = [document];
+
+  while (stack.length > 0) {
+    const node = stack.pop() as { value?: unknown; content?: unknown[] };
+    if (typeof node.value === 'string') values.push(node.value);
+    if (Array.isArray(node.content)) {
+      for (let index = node.content.length - 1; index >= 0; index -= 1) {
+        const child = node.content[index];
+        if (child && typeof child === 'object') stack.push(child);
+      }
+    }
+  }
+
+  return values.join(' ').trim();
 }

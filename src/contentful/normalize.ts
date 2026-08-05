@@ -1,8 +1,13 @@
 import type { Entry, EntrySkeletonType } from 'contentful';
 import { publicationSchema } from './schemas';
 import type { Article, Image, Publication } from './types';
-import { materializeContentfulImage } from './image-pipeline';
+import {
+  inspectContentfulImage,
+  materializeContentfulImage,
+  type RawImageFields,
+} from './image-pipeline';
 import { normalizeStoryLabel } from './article-requirements';
+import { validateRichTextBudget } from './rich-text-budget';
 import {
   estimateReadingMinutes,
   plainTextFromRichText,
@@ -13,12 +18,26 @@ import {
 type RawEntry = Entry<EntrySkeletonType, undefined, string>;
 type Fields = Record<string, any>;
 
+export const IMAGE_FANOUT_BUDGET = Object.freeze({
+  maxImages: 1_500,
+  maxVariants: 4_000,
+  maxEstimatedDownloadBytes: 512 * 1024 * 1024,
+});
+
 function contentType(entry: RawEntry): string {
   return entry.sys.contentType.sys.id;
 }
 
 function fields(entry: RawEntry): Fields {
   return entry.fields as Fields;
+}
+
+function assertPrivateArticleFieldsOmitted(value: Fields, entryId: string): void {
+  if (Object.hasOwn(value, 'internalNotes')) {
+    throw new Error(
+      `Entry ${entryId} exposed private field internalNotes through the Delivery API. Apply the internal-notes content model migration before building.`,
+    );
+  }
 }
 
 function referenceId(value: unknown, ownerId: string, fieldName: string): string {
@@ -66,6 +85,89 @@ function jsonLinks(value: unknown): Array<{ label: string; url: string }> {
     .map((item) => ({ label: item.label, url: sanitizeExternalUrl(item.url) }));
 }
 
+function collectEmbeddedImageIds(value: unknown, imageIds: ReadonlySet<string>): string[] {
+  if (!value || typeof value !== 'object') return [];
+  const result: string[] = [];
+  const stack = [value];
+  while (stack.length > 0) {
+    const node = stack.pop() as {
+      nodeType?: string;
+      data?: { target?: { sys?: { id?: unknown } } };
+      content?: unknown[];
+    };
+    const targetId = node.data?.target?.sys?.id;
+    if (
+      node.nodeType === 'embedded-entry-block' &&
+      typeof targetId === 'string' &&
+      imageIds.has(targetId)
+    ) {
+      result.push(targetId);
+    }
+    for (const child of node.content ?? []) stack.push(child as object);
+  }
+  return result;
+}
+
+function reachableImageIds(byType: ReadonlyMap<string, RawEntry[]>): Set<string> {
+  const imageEntries = byType.get('image') ?? [];
+  const knownImageIds = new Set(imageEntries.map((entry) => entry.sys.id));
+  const result = new Set<string>();
+  const directImageFields = new Map<string, string[]>([
+    ['author', ['staffPhotograph']],
+    ['category', ['headerImage']],
+    ['topic', ['heroImage']],
+    ['book', ['coverImage']],
+    ['article', ['heroImage']],
+    ['siteSettings', ['defaultSocialImage']],
+  ]);
+
+  for (const [type, fieldNames] of directImageFields) {
+    for (const entry of byType.get(type) ?? []) {
+      const value = fields(entry);
+      for (const fieldName of fieldNames) {
+        if (value[fieldName]) result.add(referenceId(value[fieldName], entry.sys.id, fieldName));
+      }
+    }
+  }
+  for (const entry of byType.get('article') ?? []) {
+    for (const id of collectEmbeddedImageIds(fields(entry).body, knownImageIds)) result.add(id);
+  }
+
+  return result;
+}
+
+function assertImageFanoutBudget(
+  imageEntries: ReadonlyMap<string, RawEntry>,
+  imageIds: ReadonlySet<string>,
+): void {
+  if (imageIds.size > IMAGE_FANOUT_BUDGET.maxImages) {
+    throw new Error(
+      `Published content references ${imageIds.size} images, exceeding the preflight limit of ${IMAGE_FANOUT_BUDGET.maxImages}.`,
+    );
+  }
+
+  let variantCount = 0;
+  let estimatedDownloadBytes = 0;
+  for (const id of imageIds) {
+    const entry = imageEntries.get(id);
+    if (!entry) throw new Error(`Published content references missing Image entry ${id}.`);
+    const plan = inspectContentfulImage(id, fields(entry) as RawImageFields);
+    variantCount += plan.variantCount;
+    estimatedDownloadBytes += plan.estimatedDownloadBytes;
+  }
+
+  if (variantCount > IMAGE_FANOUT_BUDGET.maxVariants) {
+    throw new Error(
+      `Published images require ${variantCount} generated variants, exceeding the preflight limit of ${IMAGE_FANOUT_BUDGET.maxVariants}.`,
+    );
+  }
+  if (estimatedDownloadBytes > IMAGE_FANOUT_BUDGET.maxEstimatedDownloadBytes) {
+    throw new Error(
+      `Published image variants have an estimated download size of ${estimatedDownloadBytes} bytes, exceeding the preflight limit of ${IMAGE_FANOUT_BUDGET.maxEstimatedDownloadBytes} bytes.`,
+    );
+  }
+}
+
 export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<Publication> {
   const byType = new Map<string, RawEntry[]>();
   for (const entry of entries) {
@@ -73,9 +175,20 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
     byType.set(type, [...(byType.get(type) ?? []), entry]);
   }
 
+  for (const entry of byType.get('article') ?? []) {
+    const value = fields(entry);
+    assertPrivateArticleFieldsOmitted(value, entry.sys.id);
+    validateRichTextBudget(value.body, entry.sys.id);
+  }
+
+  const imageEntries = new Map((byType.get('image') ?? []).map((entry) => [entry.sys.id, entry]));
+  const referencedImageIds = reachableImageIds(byType);
+  assertImageFanoutBudget(imageEntries, referencedImageIds);
+
   const images = new Map<string, Image>();
-  for (const entry of byType.get('image') ?? []) {
-    images.set(entry.sys.id, await materializeContentfulImage(entry.sys.id, fields(entry)));
+  for (const id of referencedImageIds) {
+    const entry = imageEntries.get(id)!;
+    images.set(id, await materializeContentfulImage(id, fields(entry)));
   }
   const imageReference = (
     value: unknown,
@@ -90,21 +203,29 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
   };
   const attachEmbeddedImages = (value: unknown): unknown => {
     if (!value || typeof value !== 'object') return value;
-    const node = value as { nodeType?: string; data?: Record<string, any>; content?: unknown[] };
-    if (node.nodeType === 'embedded-entry-block') {
-      const targetId = node.data?.target?.sys?.id;
-      const normalizedImage = typeof targetId === 'string' ? images.get(targetId) : undefined;
-      if (normalizedImage) {
-        node.data = {
-          ...node.data,
-          target: { ...node.data?.target, normalizedImage },
-        };
+    const stack = [value];
+    while (stack.length > 0) {
+      const current = stack.pop() as object;
+      const node = current as {
+        nodeType?: string;
+        data?: Record<string, any>;
+        content?: unknown[];
+      };
+      if (node.nodeType === 'embedded-entry-block') {
+        const targetId = node.data?.target?.sys?.id;
+        const normalizedImage = typeof targetId === 'string' ? images.get(targetId) : undefined;
+        if (normalizedImage) {
+          node.data = {
+            ...node.data,
+            target: { ...node.data?.target, normalizedImage },
+          };
+        }
+      }
+      for (const child of node.content ?? []) {
+        stack.push(child as object);
       }
     }
-    if (Array.isArray(node.content)) {
-      node.content = node.content.map(attachEmbeddedImages);
-    }
-    return node;
+    return value;
   };
 
   const authors = (byType.get('author') ?? []).map((entry) => {
@@ -202,7 +323,6 @@ export async function normalizeContentfulEntries(entries: RawEntry[]): Promise<P
   for (const entry of byType.get('article') ?? []) {
     const value = fields(entry);
     const body = attachEmbeddedImages(value.body);
-    // `publishingChecks` is an omitted editor-only field and intentionally never enters site data.
     const article = {
       id: entry.sys.id,
       title: value.title,

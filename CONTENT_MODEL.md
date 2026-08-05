@@ -5,7 +5,7 @@ The executable source of truth is the ordered migration set in
 
 | Type              | Fields and frontend use                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Article           | Title, unique slug, dek, Story Label, Rich Text body, hero Image, 1-3 Authors, main Category, Topics, optional Book, Sources, related Articles, publication/updated dates, correction, previous slugs using the same lowercase-hyphen grammar as current slugs, featured, SEO, private internal notes, and a disabled/omitted publishing-check value managed by the sidebar app. Published entries build; drafts remain private.                                                                                                                                        |
+| Article           | Title, unique slug, dek, Story Label, Rich Text body, hero Image, 1-3 Authors, main Category, Topics, optional Book, Sources, related Articles, publication/updated dates, correction, previous slugs using the same lowercase-hyphen grammar as current slugs, featured, SEO, and editor-only internal notes. Internal notes are omitted from Delivery API responses and normalized site data. Published entries build; drafts remain private.                                                                                                                         |
 | Author            | Name, slug, photograph, title, short/full bios, coverage, social links, website, Staff/Guest, Active/Former. Powers bylines, staff, and archives.                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Category          | Name, slug, description, header Image, order, navigation toggle, controlled color token. Published categories marked for navigation automatically populate the site menu in display order.                                                                                                                                                                                                                                                                                                                                                                              |
 | Topic             | Name, slug, summary, hero Image, related Articles, timeline introduction, featured toggle.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -29,13 +29,18 @@ Standard story is the default and is not printed as a reader-facing label. The m
 and Long Form to Standard story, News Brief to Brief, and Book Review to Review without changing an
 entry's draft or published state.
 
-The Article sidebar app enforces publication-readiness rules that the Contentful model cannot
+The Article sidebar app reports publication-readiness rules that the Contentful model cannot
 express. All Story Labels except Brief require a published Hero Image entry. Authors and the main
 Category must be published. Any selected Topics, Sources, Book, Related Articles, Rich Text entry
 links, and their known image, asset, and article dependencies must also be published. Category and
-Topic names remain dynamic and are not hardcoded into the app. The technical `publishingChecks`
-field is required but omitted from delivery responses, so it does not enter the frontend normalizer
-or public output. Zod and reference validation remain the final build-time safety net.
+Topic names remain dynamic and are not hardcoded into the app. The app is advisory and writes no
+authorization field. The production build fetches the current published snapshot and independently
+enforces the same structural and reference invariants through normalization and Zod before any
+deployment can replace the static site.
+
+Article `internalNotes` remains available to authorized editors and Management API clients, but is
+marked omitted in the Contentful model so it never enters Delivery API responses. Normalization and
+Zod also fail closed if model drift causes that private field to appear in build input.
 
 Homepage Article and Topic links must resolve to published entries. The normalizer treats a
 published Homepage entry as manual mode and no published Homepage entry as automatic mode. The

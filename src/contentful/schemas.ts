@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { sanitizeLinkUrl } from '../utilities/content';
 import { conditionalRequirementsForArticle, storyLabels } from './article-requirements';
+import { validateRichTextBudget } from './rich-text-budget';
 
 export { storyLabels } from './article-requirements';
 
@@ -123,9 +124,20 @@ export const articleSchema = z
     featured: z.boolean().default(false),
     seoTitle: z.string().max(70).optional(),
     seoDescription: z.string().max(170).optional(),
+    internalNotes: z.never().optional(),
     readingMinutes: z.number().int().positive(),
   })
   .superRefine((article, context) => {
+    try {
+      validateRichTextBudget(article.body, article.id);
+    } catch (error) {
+      context.addIssue({
+        code: 'custom',
+        message: error instanceof Error ? error.message : 'Invalid Rich Text document.',
+        path: ['body'],
+      });
+    }
+
     const requirements = conditionalRequirementsForArticle(article.storyLabel);
     if (requirements.heroImage && !article.heroImage) {
       context.addIssue({
@@ -200,6 +212,32 @@ export const publicationSchema = z
           });
         }
         seen.add(item.slug);
+      }
+    }
+
+    const currentArticleSlugs = new Set(publication.articles.map((article) => article.slug));
+    const historicalSlugOwners = new Map<string, string>();
+    for (const [articleIndex, article] of publication.articles.entries()) {
+      for (const [previousSlugIndex, previousSlug] of article.previousSlugs.entries()) {
+        const path = ['articles', articleIndex, 'previousSlugs', previousSlugIndex];
+        if (currentArticleSlugs.has(previousSlug)) {
+          context.addIssue({
+            code: 'custom',
+            message: `Previous slug ${previousSlug} conflicts with a current article route.`,
+            path,
+          });
+        }
+
+        const existingOwner = historicalSlugOwners.get(previousSlug);
+        if (existingOwner) {
+          context.addIssue({
+            code: 'custom',
+            message: `Previous slug ${previousSlug} is already owned by article ${existingOwner}.`,
+            path,
+          });
+        } else {
+          historicalSlugOwners.set(previousSlug, article.id);
+        }
       }
     }
 

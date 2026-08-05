@@ -400,7 +400,12 @@ module.exports = function initialModel(migration) {
     .type('Text')
     .required(false)
     .validations([{ size: { max: 170 } }]);
-  article.createField('internalNotes').name('Internal notes').type('Text').required(false);
+  article
+    .createField('internalNotes')
+    .name('Internal notes')
+    .type('Text')
+    .required(false)
+    .omitted(true);
 
   article.changeFieldControl('dek', 'builtin', 'multipleLine', {
     helpText: '30–350 characters. Summarize the story without repeating the headline.',
@@ -425,7 +430,7 @@ module.exports = function initialModel(migration) {
     helpText: 'Describe the correction and what changed. This appears publicly.',
   });
   article.changeFieldControl('internalNotes', 'builtin', 'multipleLine', {
-    helpText: 'Never rendered on the public site.',
+    helpText: 'Editor-only. Excluded from Delivery API responses and never rendered publicly.',
   });
 
   const homepage = migration

@@ -27,6 +27,42 @@ describe('publication validation', () => {
     expect(publicationSchema.safeParse(publication).success).toBe(false);
   });
 
+  it('rejects previous slugs that capture current article routes, including self-loops', () => {
+    const capturesAnotherRoute = copyFixture();
+    capturesAnotherRoute.articles[0]!.previousSlugs = [capturesAnotherRoute.articles[1]!.slug];
+    expect(publicationSchema.safeParse(capturesAnotherRoute).success).toBe(false);
+
+    const selfLoop = copyFixture();
+    selfLoop.articles[0]!.previousSlugs = [selfLoop.articles[0]!.slug];
+    expect(publicationSchema.safeParse(selfLoop).success).toBe(false);
+  });
+
+  it('rejects duplicate ownership of a historical article slug', () => {
+    const publication = copyFixture();
+    publication.articles[0]!.previousSlugs = ['shared-historical-slug'];
+    publication.articles[1]!.previousSlugs = ['shared-historical-slug'];
+    expect(publicationSchema.safeParse(publication).success).toBe(false);
+  });
+
+  it('rejects redirect chains and cycles assembled from otherwise valid slugs', () => {
+    const chain = copyFixture();
+    chain.articles[0]!.previousSlugs = [chain.articles[1]!.slug];
+    chain.articles[1]!.previousSlugs = ['older-historical-slug'];
+    expect(publicationSchema.safeParse(chain).success).toBe(false);
+
+    const cycle = copyFixture();
+    cycle.articles[0]!.previousSlugs = [cycle.articles[1]!.slug];
+    cycle.articles[1]!.previousSlugs = [cycle.articles[0]!.slug];
+    expect(publicationSchema.safeParse(cycle).success).toBe(false);
+  });
+
+  it('accepts uniquely owned historical slugs that point directly to canonical articles', () => {
+    const publication = copyFixture();
+    publication.articles[0]!.previousSlugs = ['first-historical-slug'];
+    publication.articles[1]!.previousSlugs = ['second-historical-slug'];
+    expect(publicationSchema.safeParse(publication).success).toBe(true);
+  });
+
   it('rejects missing Homepage article and topic references', () => {
     const missingArticle = copyFixture();
     missingArticle.homepage.leadArticleId = 'missing-homepage-article';

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  createRefreshSequence,
   evaluatePublishingChecks,
   publishingChecksPass,
   type LinkedEntryStatus,
@@ -25,6 +26,16 @@ function completeInput(overrides: Partial<PublishingCheckInput> = {}): Publishin
 }
 
 describe('Contentful publishing checks', () => {
+  it('invalidates an older check as soon as a newer refresh is queued', () => {
+    const sequence = createRefreshSequence();
+    const olderCheck = sequence.next();
+    expect(sequence.isCurrent(olderCheck)).toBe(true);
+
+    const newerCheck = sequence.next();
+    expect(sequence.isCurrent(olderCheck)).toBe(false);
+    expect(sequence.isCurrent(newerCheck)).toBe(true);
+  });
+
   it('requires a published hero image for standard articles', async () => {
     const missing = await evaluatePublishingChecks(
       completeInput({ heroImage: undefined }),

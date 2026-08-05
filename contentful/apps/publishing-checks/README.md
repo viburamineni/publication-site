@@ -16,9 +16,11 @@ Category and Topic names are intentionally not hardcoded. Editors can rename or 
 entries without rebuilding the app. The app checks that the selected entries are publishable, not
 whether an editorial classification choice is subjectively correct.
 
-The app writes `ready` to the disabled, required `publishingChecks` field only while those checks
-pass. Contentful's normal publish validation blocks the Article when that field is empty. The
-website's Zod validation remains the final deployment safety net.
+The checklist is advisory and never writes a persistent authorization value. This is intentional:
+browser-side state can be forged or become stale after an Article or dependency changes. The
+production build fetches the current published snapshot and independently runs normalization, Zod,
+and reference validation. A failed check therefore cannot reach the deployed static site even if an
+editor publishes before noticing the sidebar warning.
 
 ## Build locally
 
@@ -37,7 +39,8 @@ npm run contentful:app:dev
 
 ## Install with Contentful hosting
 
-1. Apply `contentful/migrations/004-add-publishing-checks.cjs` to the intended environment.
+1. Apply the ordered content model migrations through
+   `contentful/migrations/007-remove-client-readiness-marker.cjs` to the intended environment.
 2. In Contentful, create an app definition named **Publishing checks**.
 3. Enable the **App configuration** and **Entry sidebar** locations and Contentful-hosted bundles.
 4. Build the app.

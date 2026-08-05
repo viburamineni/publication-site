@@ -1,4 +1,5 @@
 import { normalizeSlug, sanitizeExternalUrl } from '../utilities/content';
+import { validateRichTextBudget } from './rich-text-budget';
 
 type RichNode = {
   nodeType?: string;
@@ -154,8 +155,6 @@ function renderNode(node: RichNode, context: RenderContext): string {
 }
 
 export function renderRichText(document: unknown, articleId: string): string {
-  if (!document || typeof document !== 'object') {
-    throw new Error(`Article ${articleId} has an invalid Rich Text document.`);
-  }
+  validateRichTextBudget(document, articleId);
   return renderNode(document as RichNode, { articleId, headingCounts: new Map() });
 }

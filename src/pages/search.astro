@@ -33,13 +33,62 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const status = document.querySelector('#search-status');
     const results = document.querySelector('#search-results');
 
-    const escapeHtml = (value) =>
-      String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+    const createStoryMeta = (...values) => {
+      const meta = document.createElement('div');
+      meta.className = 'story-meta';
+      for (const value of values) {
+        const span = document.createElement('span');
+        span.textContent = value;
+        meta.append(span);
+      }
+      return meta;
+    };
+
+    const createExcerpt = (value) => {
+      const excerpt = document.createElement('p');
+      excerpt.className = 'card-dek';
+      let highlight = null;
+
+      for (const token of String(value).split(/(<mark>|<\/mark>)/g)) {
+        if (token === '<mark>' && !highlight) {
+          highlight = document.createElement('mark');
+          excerpt.append(highlight);
+        } else if (token === '</mark>' && highlight) {
+          highlight = null;
+        } else {
+          (highlight || excerpt).append(document.createTextNode(token));
+        }
+      }
+
+      return excerpt;
+    };
+
+    const createSearchResult = (item) => {
+      const article = document.createElement('article');
+      article.className = 'archive-row';
+
+      const type = item.meta.type || 'Article';
+      const category = item.meta.category;
+      article.append(
+        createStoryMeta(
+          type,
+          ...(category && category.toLocaleLowerCase() !== type.toLocaleLowerCase()
+            ? [category]
+            : []),
+        ),
+      );
+
+      const content = document.createElement('div');
+      const heading = document.createElement('h2');
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.textContent = item.meta.title || item.url;
+      heading.append(link);
+      content.append(heading, createExcerpt(item.excerpt));
+
+      article.append(content, createStoryMeta(item.meta.author || '', item.meta.date || ''));
+      return article;
+    };
 
     const runSearch = async (query) => {
       if (!query.trim()) {
@@ -57,31 +106,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           .filter((item) => !item.url.includes('/__search-anchor/'))
           .slice(0, 30);
         status.textContent = `${data.length} result${data.length === 1 ? '' : 's'} for “${query}”.`;
-        results.innerHTML = data
-          .map(
-            (item) => `
-              <article class="archive-row">
-                <div class="story-meta">
-                  <span>${escapeHtml(item.meta.type || 'Article')}</span>
-                  ${
-                    item.meta.category &&
-                    item.meta.category.toLocaleLowerCase() !==
-                      (item.meta.type || 'Article').toLocaleLowerCase()
-                      ? `<span>${escapeHtml(item.meta.category)}</span>`
-                      : ''
-                  }
-                </div>
-                <div>
-                  <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.meta.title || item.url)}</a></h2>
-                  <p class="card-dek">${item.excerpt}</p>
-                </div>
-                <div class="story-meta">
-                  <span>${escapeHtml(item.meta.author || '')}</span>
-                  <span>${escapeHtml(item.meta.date || '')}</span>
-                </div>
-              </article>`,
-          )
-          .join('');
+        results.replaceChildren(...data.map(createSearchResult));
       } catch {
         status.textContent = 'Search is temporarily unavailable. Please try again later.';
       }

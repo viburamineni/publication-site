@@ -53,6 +53,19 @@ export type LinkedEntryStatus =
   | 'dependency-unavailable';
 export type ResolveLinkedEntryStatus = (entryId: string) => Promise<LinkedEntryStatus>;
 
+export interface RefreshSequence {
+  next(): number;
+  isCurrent(sequence: number): boolean;
+}
+
+export function createRefreshSequence(): RefreshSequence {
+  let current = 0;
+  return {
+    next: () => ++current,
+    isCurrent: (sequence) => sequence === current,
+  };
+}
+
 interface ReferenceCheckOptions {
   id: PublishingCheck['id'];
   label: string;

@@ -7,19 +7,24 @@ interface RawAsset {
   fields?: {
     file?: {
       url?: string;
-      details?: { image?: { width?: number; height?: number } };
+      details?: { size?: number; image?: { width?: number; height?: number } };
       contentType?: string;
     };
   };
 }
 
-interface RawImageFields {
+export interface RawImageFields {
   asset?: RawAsset;
   alternativeText?: string;
   caption?: string;
   photographerOrSourceCredit?: string;
   rightsOrUsageNote?: string;
   focalPointDescription?: string;
+}
+
+export interface ContentfulImagePlan {
+  variantCount: number;
+  estimatedDownloadBytes: number;
 }
 
 function safeAssetUrl(value: string): URL {
@@ -39,23 +44,26 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
-export async function materializeContentfulImage(
-  id: string,
-  fields: RawImageFields,
-): Promise<Image> {
+function imageDetails(id: string, fields: RawImageFields) {
   const asset = fields.asset;
   const assetId = asset?.sys?.id;
   const file = asset?.fields?.file;
   const originalWidth = file?.details?.image?.width;
   const originalHeight = file?.details?.image?.height;
+  const sourceBytes = file?.details?.size;
+  const alternativeText = fields.alternativeText;
+  const photographerOrSourceCredit = fields.photographerOrSourceCredit;
 
   if (!assetId || !file?.url || !originalWidth || !originalHeight) {
     throw new Error(`Image entry ${id} has an unresolved or incomplete asset reference.`);
   }
-  if (!fields.alternativeText?.trim()) {
+  if (!Number.isSafeInteger(sourceBytes) || (sourceBytes ?? 0) <= 0) {
+    throw new Error(`Image entry ${id} has invalid or missing asset byte metadata.`);
+  }
+  if (!alternativeText?.trim()) {
     throw new Error(`Image entry ${id} is missing required alternative text.`);
   }
-  if (!fields.photographerOrSourceCredit?.trim()) {
+  if (!photographerOrSourceCredit?.trim()) {
     throw new Error(`Image entry ${id} is missing required photographer or source credit.`);
   }
 
@@ -66,6 +74,42 @@ export async function materializeContentfulImage(
     .concat(originalWidth < 480 ? [originalWidth] : [])
     .filter((width, index, values) => values.indexOf(width) === index)
     .slice(0, 4);
+
+  return {
+    assetId,
+    alternativeText,
+    originalWidth,
+    originalHeight,
+    photographerOrSourceCredit,
+    requestedWidths,
+    sourceBytes: sourceBytes!,
+    sourceUrl,
+    version,
+  };
+}
+
+export function inspectContentfulImage(id: string, fields: RawImageFields): ContentfulImagePlan {
+  const details = imageDetails(id, fields);
+  return {
+    variantCount: details.requestedWidths.length,
+    estimatedDownloadBytes: details.sourceBytes * details.requestedWidths.length,
+  };
+}
+
+export async function materializeContentfulImage(
+  id: string,
+  fields: RawImageFields,
+): Promise<Image> {
+  const {
+    assetId,
+    alternativeText,
+    originalWidth,
+    originalHeight,
+    photographerOrSourceCredit,
+    requestedWidths,
+    sourceUrl,
+    version,
+  } = imageDetails(id, fields);
   const generatedDirectory = path.join(process.cwd(), 'public', 'generated');
   await mkdir(generatedDirectory, { recursive: true });
 
@@ -99,9 +143,9 @@ export async function materializeContentfulImage(
 
   return {
     id,
-    alt: fields.alternativeText,
+    alt: alternativeText,
     caption: fields.caption ?? '',
-    credit: fields.photographerOrSourceCredit,
+    credit: photographerOrSourceCredit,
     rightsNote: fields.rightsOrUsageNote ?? '',
     focalPoint: fields.focalPointDescription ?? 'center',
     width: originalWidth,

@@ -47,4 +47,62 @@ describe('redirect file serialization', () => {
       ]),
     ).toThrow('status 301');
   });
+
+  it('rejects duplicate redirect sources', () => {
+    expect(() =>
+      serializeRedirectFile([
+        {
+          from: '/articles/shared-historical-slug/',
+          to: '/articles/first-current-slug/',
+          status: 301,
+        },
+        {
+          from: '/articles/shared-historical-slug/',
+          to: '/articles/second-current-slug/',
+          status: 301,
+        },
+      ]),
+    ).toThrow('Duplicate redirect source');
+  });
+
+  it('rejects self-looping redirects', () => {
+    expect(() =>
+      serializeRedirectFile([
+        {
+          from: '/articles/same-slug/',
+          to: '/articles/same-slug/',
+          status: 301,
+        },
+      ]),
+    ).toThrow('self-loop');
+  });
+
+  it.each([
+    [
+      {
+        from: '/articles/oldest-slug/',
+        to: '/articles/older-slug/',
+        status: 301,
+      },
+      {
+        from: '/articles/older-slug/',
+        to: '/articles/current-slug/',
+        status: 301,
+      },
+    ],
+    [
+      {
+        from: '/articles/first-slug/',
+        to: '/articles/second-slug/',
+        status: 301,
+      },
+      {
+        from: '/articles/second-slug/',
+        to: '/articles/first-slug/',
+        status: 301,
+      },
+    ],
+  ])('rejects redirect chains and cycles', (...redirects) => {
+    expect(() => serializeRedirectFile(redirects)).toThrow('also a redirect source');
+  });
 });

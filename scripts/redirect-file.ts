@@ -33,6 +33,25 @@ export function serializeRedirectFile(value: unknown): string {
   }
 
   const redirects = value.map(parseRedirect);
+  const sources = new Set<string>();
+  for (const redirect of redirects) {
+    if (redirect.from === redirect.to) {
+      throw new Error(`Redirect source ${redirect.from} creates a self-loop.`);
+    }
+    if (sources.has(redirect.from)) {
+      throw new Error(`Duplicate redirect source: ${redirect.from}`);
+    }
+    sources.add(redirect.from);
+  }
+
+  for (const redirect of redirects) {
+    if (sources.has(redirect.to)) {
+      throw new Error(
+        `Redirect target ${redirect.to} is not canonical because it is also a redirect source.`,
+      );
+    }
+  }
+
   return [
     '# Generated from published Article.previousSlugs values.',
     ...redirects.map((redirect) => `${redirect.from} ${redirect.to} ${redirect.status}`),

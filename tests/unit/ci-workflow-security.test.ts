@@ -84,13 +84,13 @@ describe('production deployment action integrity', () => {
     expect(nodeSetup).toContain('cache-dependency-path: source/package-lock.json');
   });
 
-  it('pins generated-image cache restore to the reviewed actions/cache v4.3.0 commit', () => {
+  it('pins generated-image cache restore to the reviewed actions/cache v6.1.0 commit', () => {
     const cacheRestore = getDeploymentStepBlock('Restore generated Contentful images');
 
     expect(cacheRestore).toContain(
-      'uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0',
+      'uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0',
     );
-    expect(cacheRestore).not.toContain('actions/cache/restore@v4');
+    expect(cacheRestore).not.toContain('actions/cache/restore@v6');
     expect(cacheRestore).toContain('id: image-cache');
     expect(cacheRestore).toContain('path: source/public/generated');
     expect(cacheRestore).toContain('key: contentful-images-${{ github.run_id }}');
@@ -98,13 +98,13 @@ describe('production deployment action integrity', () => {
     expect(cacheRestore).toContain('contentful-images-');
   });
 
-  it('pins generated-image cache save to the reviewed actions/cache v4.3.0 commit', () => {
+  it('pins generated-image cache save to the reviewed actions/cache v6.1.0 commit', () => {
     const cacheSave = getDeploymentStepBlock('Save generated Contentful images');
 
     expect(cacheSave).toContain(
-      'uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0',
+      'uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0',
     );
-    expect(cacheSave).not.toContain('actions/cache/save@v4');
+    expect(cacheSave).not.toContain('actions/cache/save@v6');
     expect(cacheSave).toContain("if: success() && steps.image-cache.outputs.cache-hit != 'true'");
     expect(cacheSave).toContain('path: source/public/generated');
     expect(cacheSave).toContain('key: contentful-images-${{ github.run_id }}');

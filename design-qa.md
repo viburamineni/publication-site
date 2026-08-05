@@ -175,12 +175,13 @@ The following differences are expected product constraints, not design drift:
 
 ## Validation
 
-- `npm run test`: 26 passed.
-- `npm run typecheck`: passed with 12 dependency deprecation hints and no errors.
-- `npm run build:test`: passed, 30 pages built.
-- `npm run test:e2e`: passed, including the Topics route, desktop and mobile topic navigation, editorial-order, optional-notice, related-story, author-link, and accessibility coverage.
-- `npm run deploy:worker:dry-run`: passed, 105 static assets, no bindings.
-- Prettier, ESLint, and the full `npm run ci` gate: passed.
+- `npm run test`: passed, 117 tests across 21 files.
+- `npm run typecheck`: passed with no errors.
+- `npm run build:test`: passed; Pagefind indexed 12 public pages from the current fixture build.
+- `npm run test:e2e`: passed, with 39 tests passed and one skipped. Coverage includes the Topics route, desktop and mobile topic navigation, editorial order, optional notices, related stories, author links, and accessibility.
+- `npm run deploy:worker:dry-run`: passed, with 143 static files and no Worker bindings.
+- Prettier, ESLint, internal-link verification, and the full `npm run ci` gate: passed locally and in GitHub Actions.
+- The GitHub Contentful integration check passed against the current published production content.
 - Browser console: no warnings or errors.
 
 final result: passed

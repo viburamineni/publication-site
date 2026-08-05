@@ -61,9 +61,10 @@ CONTENTFUL_MANAGEMENT_TOKEN=... \
 npm run contentful:migrate:homepage-controls
 ```
 
-The management token is temporary. Do not commit it, expose it to browser code, or store it in
-Cloudflare after setup. Export the resulting model with `npm run contentful:export`, then revoke the
-token.
+The management token is temporary. Do not commit it, expose it to browser code, or keep it in
+GitHub or Cloudflare after setup. Export the resulting model with `npm run contentful:export`, then
+revoke the token. Production deployment uses the read-only Delivery API token stored in GitHub
+Actions. Cloudflare receives only the completed static site.
 
 The Remote MCP app is installed on the `master` environment. Its enabled entity groups are Entries,
 Assets, Content types, Locales, Environments, Editor interfaces, Organizations, and Spaces. Premium

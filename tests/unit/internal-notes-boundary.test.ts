@@ -94,6 +94,6 @@ describe('private Article internal notes boundary', () => {
     expect(packageJson.scripts['contentful:migrate:protect-internal-notes']).toMatch(
       /^contentful-migration /,
     );
-    expect(packageJson.devDependencies['contentful-migration']).toBe('5.1.0');
+    expect(packageJson.devDependencies['contentful-migration']).toBe('5.1.1');
   });
 });

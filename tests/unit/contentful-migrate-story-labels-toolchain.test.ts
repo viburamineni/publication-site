@@ -39,7 +39,7 @@ describe('story-labels Contentful migration toolchain', () => {
     const rootLock = lockfile.packages[''];
     const migratorLock = lockfile.packages['node_modules/contentful-migration'];
 
-    expect(version).toBe('5.1.0');
+    expect(version).toBe('5.1.1');
     expect(rootLock?.devDependencies?.['contentful-migration']).toBe(version);
     expect(migratorLock?.version).toBe(version);
     expect(migratorLock?.resolved).toBe(

@@ -59,13 +59,13 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.12.1",
-    "@contentful/app-scripts": "4.1.6",
+    "@contentful/app-scripts": "4.1.16",
     "@contentful/app-sdk": "^4.68.1",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.2",
-    "contentful-migration": "5.1.0",
     "contentful-management": "^12.13.0",
+    "contentful-migration": "5.1.1",
     "eslint": "^10.8.0",
     "eslint-plugin-astro": "^3.0.1",
     "pagefind": "^1.5.2",
@@ -77,5 +77,8 @@
     "vite": "^8.2.0",
     "vitest": "^4.1.10",
     "wrangler": "^4.118.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.5"
   }
 }

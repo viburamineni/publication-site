@@ -37,7 +37,7 @@ describe('Contentful app upload toolchain', () => {
     const rootLock = lockfile.packages[''];
     const uploaderLock = lockfile.packages['node_modules/@contentful/app-scripts'];
 
-    expect(version).toBe('4.1.6');
+    expect(version).toBe('4.1.16');
     expect(rootLock?.devDependencies?.['@contentful/app-scripts']).toBe(version);
     expect(uploaderLock?.version).toBe(version);
     expect(uploaderLock?.resolved).toBe(

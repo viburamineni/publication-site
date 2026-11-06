@@ -74,9 +74,9 @@ describe('server-authoritative publishing readiness', () => {
     expect(packageJson.scripts['contentful:migrate:remove-publishing-marker']).toMatch(
       /^contentful-migration /,
     );
-    expect(packageJson.devDependencies['contentful-migration']).toBe('5.1.0');
+    expect(packageJson.devDependencies['contentful-migration']).toBe('5.1.1');
     expect(packageLock.packages['node_modules/contentful-migration']).toMatchObject({
-      version: '5.1.0',
+      version: '5.1.1',
     });
     expect(packageLock.packages['node_modules/contentful-migration']?.integrity).toBeTruthy();
   });

@@ -73,11 +73,11 @@ describe('production deployment action integrity', () => {
     expect(fallbackCheckout).toContain('ssh-key: ${{ secrets.FALLBACK_DEPLOY_KEY }}');
   });
 
-  it('pins Node setup to the reviewed actions/setup-node v7.0.0 commit', () => {
+  it('pins Node setup to the reviewed actions/setup-node v7.1.0 commit', () => {
     const nodeSetup = getDeploymentStepBlock('Set up Node');
 
     expect(nodeSetup).toContain(
-      'uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0',
+      'uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0',
     );
     expect(nodeSetup).toContain('node-version: 24');
     expect(nodeSetup).toContain('cache: npm');
